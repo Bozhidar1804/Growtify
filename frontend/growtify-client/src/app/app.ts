@@ -1,24 +1,30 @@
 
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   imports: [],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.css'
 })
 
 export class App implements OnInit{
   private http = inject(HttpClient);
   protected readonly title = 'Growtify Client';
+  protected users = signal<any>([]);
 
-  ngOnInit(): void {
-    this.http.get('https://localhost:5001/api/AppUsers').subscribe({
-      next: response => console.log(response),
-      error: error => console.log(error),
-      complete: () => console.log('Http Request completed')
-  });
+  async ngOnInit() {
+    this.users.set(await this.getUsers());
+  }
 
+  async getUsers() {
+    try {
+      return lastValueFrom(this.http.get('https://localhost:5001/api/AppUsers'));
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 }
