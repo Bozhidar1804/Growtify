@@ -1,15 +1,12 @@
 ﻿using Growtify.Domain.Entities;
 using Growtify.Infrastructure.Data;
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Growtify.API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class AppUsersController(GrowtifyDbContext dbContext) : ControllerBase
+    public class AppUsersController(GrowtifyDbContext dbContext) : BaseApiController
     {
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
@@ -38,7 +35,9 @@ namespace Growtify.API.Controllers
             AppUser newUser = new AppUser
             {
                 UserName = userName,
-                Email = $"{userName.ToLower()}@example.com"
+                Email = $"{userName.ToLower()}@example.com",
+                PasswordHash = Array.Empty<byte>(),
+                PasswordSalt = Array.Empty<byte>()
             };
 
             dbContext.AppUsers.Add(newUser);
