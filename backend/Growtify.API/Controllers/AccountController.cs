@@ -2,24 +2,31 @@
 using System.Text;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 using Growtify.Domain.Entities;
 using Growtify.Infrastructure.Data;
+using Growtify.Application.DTOs.Account;
 
 namespace Growtify.API.Controllers
 {
     public class AccountController(GrowtifyDbContext dbContext) : BaseApiController
     {
         [HttpPost("register")] // POST: api/account/register
-        public async Task<ActionResult<AppUser>> Register(string email, string userName, string password)
+        public async Task<ActionResult<AppUser>> Register(RegisterDto registerDto)
         {
+            if (await EmailExists(registerDto.Email))
+            {
+                return BadRequest("Email is already taken.");
+            }
+
             using var hmac = new HMACSHA512();
 
             AppUser newUser = new AppUser
             {
-                Email = email,
-                UserName = userName,
-                PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password)),
+                Email = registerDto.Email,
+                UserName = registerDto.UserName,
+                PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
                 PasswordSalt = hmac.Key
             };
 
@@ -27,6 +34,11 @@ namespace Growtify.API.Controllers
             await dbContext.SaveChangesAsync();
 
             return newUser;
+        }
+
+        private async Task<bool> EmailExists(string email)
+        {
+            return await dbContext.AppUsers.AnyAsync(u => u.Email.ToLower() == email.ToLower());
         }
     }
 }
