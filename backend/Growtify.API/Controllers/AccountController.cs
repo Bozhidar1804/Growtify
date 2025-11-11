@@ -5,13 +5,14 @@ using Microsoft.EntityFrameworkCore;
 using Growtify.Domain.Entities;
 using Growtify.Infrastructure.Data;
 using Growtify.Application.DTOs.Account;
+using Growtify.Application.Interfaces;
 
 namespace Growtify.API.Controllers
 {
-    public class AccountController(GrowtifyDbContext dbContext) : BaseApiController
+    public class AccountController(GrowtifyDbContext dbContext, ITokenService tokenService) : BaseApiController
     {
         [HttpPost("register")] // POST: api/account/register
-        public async Task<ActionResult<AppUser>> Register(RegisterDto registerDto)
+        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
             if (await EmailExists(registerDto.Email))
             {
@@ -31,11 +32,17 @@ namespace Growtify.API.Controllers
             dbContext.AppUsers.Add(newUser);
             await dbContext.SaveChangesAsync();
 
-            return newUser;
+            return new UserDto
+            {
+                Id = newUser.Id,
+                Email = newUser.Email,
+                UserName = newUser.UserName,
+                Token = tokenService.CreateToken(newUser)
+            };
         }
 
         [HttpPost("login")] // POST: api/account/login
-        public async Task<ActionResult<AppUser>> Login(LoginDto loginDto)
+        public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
         {
             var user = await dbContext.AppUsers.SingleOrDefaultAsync(x => x.Email == loginDto.Email);
 
@@ -50,7 +57,13 @@ namespace Growtify.API.Controllers
                 if (user.PasswordHash[i] != computedHash[i]) return Unauthorized("Invalid password");
             }
 
-            return user;
+            return new UserDto
+            {
+                Id = user.Id,
+                Email = user.Email,
+                UserName = user.UserName,
+                Token = tokenService.CreateToken(user)
+            };
         }
 
         private async Task<bool> EmailExists(string email)
