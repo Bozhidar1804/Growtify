@@ -1,6 +1,7 @@
-using Growtify.Infrastructure.Data;
-
 using Microsoft.EntityFrameworkCore;
+using Growtify.Application.Interfaces;
+using Growtify.Infrastructure.Data;
+using Growtify.Infrastructure.Services;
 
 namespace Growtify.API
 {
@@ -19,16 +20,17 @@ namespace Growtify.API
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddCors();
+            builder.Services.AddScoped<ITokenService, TokenService>();
+
+            // TODO: Register Application layer services (example, add later)
+            // builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+            // !!! OR create an AddServices() method that registers all services in the Application layer
 
             builder.Services
                 .AddDbContext<GrowtifyDbContext>(options =>
             {                 
                 options.UseSqlServer(connectionString);
             });
-
-            // TODO: Register Application layer services (example, add later)
-            // builder.Services.AddScoped<IUserProfileService, UserProfileService>();
-            // !!! OR create an AddServices() method that registers all services in the Application layer
 
             var app = builder.Build();
 

@@ -1,9 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
 using Growtify.Domain.Entities;
 using Growtify.Infrastructure.Data;
 using Growtify.Application.DTOs.Account;
