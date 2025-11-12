@@ -1,8 +1,8 @@
-﻿using Growtify.Domain.Entities;
-using Growtify.Infrastructure.Data;
-
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Growtify.Domain.Entities;
+using Growtify.Infrastructure.Data;
 
 namespace Growtify.API.Controllers
 {
@@ -16,6 +16,7 @@ namespace Growtify.API.Controllers
             return Ok(users);
         }
 
+        [Authorize]
         [HttpGet("{id}")] // localhost:5001/api/appusers/{id}
         public async Task<IActionResult> GetUserById(string id)
         {

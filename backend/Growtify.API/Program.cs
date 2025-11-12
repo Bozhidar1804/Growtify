@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Growtify.Application.Interfaces;
 using Growtify.Infrastructure.Data;
 using Growtify.Infrastructure.Services;
+using Growtify.API.Extensions;
 
 namespace Growtify.API
 {
@@ -21,6 +22,8 @@ namespace Growtify.API
             builder.Services.AddSwaggerGen();
             builder.Services.AddCors();
             builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddJwtAuthentication(builder.Configuration);
+
 
             // TODO: Register Application layer services (example, add later)
             // builder.Services.AddScoped<IUserProfileService, UserProfileService>();
@@ -50,6 +53,7 @@ namespace Growtify.API
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
