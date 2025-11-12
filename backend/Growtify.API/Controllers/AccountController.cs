@@ -6,6 +6,7 @@ using Growtify.Domain.Entities;
 using Growtify.Infrastructure.Data;
 using Growtify.Application.DTOs.Account;
 using Growtify.Application.Interfaces;
+using Growtify.API.Extensions;
 
 namespace Growtify.API.Controllers
 {
@@ -32,13 +33,7 @@ namespace Growtify.API.Controllers
             dbContext.AppUsers.Add(newUser);
             await dbContext.SaveChangesAsync();
 
-            return new UserDto
-            {
-                Id = newUser.Id,
-                Email = newUser.Email,
-                UserName = newUser.UserName,
-                Token = tokenService.CreateToken(newUser)
-            };
+            return newUser.ToDto(tokenService); 
         }
 
         [HttpPost("login")] // POST: api/account/login
@@ -57,13 +52,7 @@ namespace Growtify.API.Controllers
                 if (user.PasswordHash[i] != computedHash[i]) return Unauthorized("Invalid password");
             }
 
-            return new UserDto
-            {
-                Id = user.Id,
-                Email = user.Email,
-                UserName = user.UserName,
-                Token = tokenService.CreateToken(user)
-            };
+            return user.ToDto(tokenService);
         }
 
         private async Task<bool> EmailExists(string email)
