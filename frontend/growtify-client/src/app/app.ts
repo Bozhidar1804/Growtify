@@ -5,6 +5,7 @@ import { lastValueFrom } from 'rxjs';
 import { Nav } from '../layout/nav/nav';
 import { AccountService } from '../core/services/account-service';
 import { Home } from '../features/home/home';
+import { User } from '../types/user';
 
 @Component({
   selector: 'app-root',
@@ -17,7 +18,7 @@ export class App implements OnInit{
   private accountService = inject(AccountService);
   private http = inject(HttpClient);
   protected readonly title = 'Growtify Client';
-  protected users = signal<any>([]);
+  protected users = signal<User[]>([]);
 
   async ngOnInit() {
     this.users.set(await this.getUsers());
@@ -33,7 +34,7 @@ export class App implements OnInit{
 
   async getUsers() {
     try {
-      return lastValueFrom(this.http.get('https://localhost:5001/api/AppUsers'));
+      return lastValueFrom(this.http.get<User[]>('https://localhost:5001/api/AppUsers'));
     } catch (error) {
       console.log(error);
       throw error;
