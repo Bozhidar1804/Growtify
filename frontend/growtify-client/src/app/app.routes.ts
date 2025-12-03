@@ -3,10 +3,11 @@ import { Home } from '../features/home/home';
 import { MyGrowth } from '../features/my-growth/my-growth';
 import { Community } from '../features/community/community';
 import { UserDetailed } from '../features/account/user-detailed/user-detailed';
+import { authGuard } from '../core/guards/auth-guard';
 
 export const routes: Routes = [
     {path: '', component: Home},
-    {path: 'my-growth', component: MyGrowth},
+    {path: 'my-growth', component: MyGrowth, canActivate: [authGuard]},
     {path: 'account/:id', component: UserDetailed},
     {path: 'community', component: Community},
     {path: '**', component: Home}
