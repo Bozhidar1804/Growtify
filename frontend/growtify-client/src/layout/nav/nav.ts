@@ -32,6 +32,7 @@ export class Nav {
 
   logOut() {
     this.accountService.logout();
+    this.toast.success('You have been logged out'); 
     this.router.navigateByUrl('/');
   }
 }

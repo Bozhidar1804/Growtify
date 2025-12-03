@@ -55,5 +55,5 @@ export class ToastService {
 
   info(message: string, duration?: number) {
     this.createToastElement(message, 'alert-info', duration);
-  };  
+  };
 }
