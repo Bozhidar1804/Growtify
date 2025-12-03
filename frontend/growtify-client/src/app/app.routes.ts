@@ -6,9 +6,16 @@ import { UserDetailed } from '../features/account/user-detailed/user-detailed';
 import { authGuard } from '../core/guards/auth-guard';
 
 export const routes: Routes = [
-    {path: '', component: Home},
-    {path: 'my-growth', component: MyGrowth, canActivate: [authGuard]},
-    {path: 'account/:id', component: UserDetailed},
-    {path: 'community', component: Community},
-    {path: '**', component: Home}
+    { path: '', component: Home },
+    {
+        path: '',
+        runGuardsAndResolvers: 'always',
+        canActivate: [authGuard],
+        children: [
+            { path: 'my-growth', component: MyGrowth },
+            { path: 'account/:id', component: UserDetailed },
+            { path: 'community', component: Community },
+        ]
+    },
+    { path: '**', component: Home }
 ];
