@@ -3,6 +3,7 @@ using Growtify.Application.Interfaces;
 using Growtify.Infrastructure.Data;
 using Growtify.Infrastructure.Services;
 using Growtify.API.Extensions;
+using Growtify.API.Middlewares;
 
 namespace Growtify.API
 {
@@ -44,6 +45,7 @@ namespace Growtify.API
                 app.UseSwaggerUI();
             }
 
+            app.UseMiddleware<ExceptionMiddleware>();
             app.UseCors(policy =>
             {
                 policy.AllowAnyHeader()
