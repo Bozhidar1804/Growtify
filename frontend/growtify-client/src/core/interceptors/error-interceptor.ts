@@ -1,7 +1,7 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject, model } from '@angular/core';
 import { ToastService } from '../services/toast-service';
-import { Router } from '@angular/router';
+import { NavigationExtras, Router } from '@angular/router';
 import { catchError } from 'rxjs';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
@@ -32,7 +32,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             router.navigateByUrl('/not-found');
             break;
           case 500:
-            toast.error('Internal server error. Please try again later.');
+            const navigationExtras: NavigationExtras = { state: { error: error.error } };
+            router.navigateByUrl('/server-error', navigationExtras);
             break;
           default:
             toast.error('An unexpected error occurred.');
