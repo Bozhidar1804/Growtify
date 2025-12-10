@@ -17,8 +17,10 @@ namespace Growtify.Infrastructure.Data
         }
 
         public DbSet<AppUser> AppUsers { get; set; }
-        
-        
+        public DbSet<Member> Members { get; set; }
+        public DbSet<Photo> Photos { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
