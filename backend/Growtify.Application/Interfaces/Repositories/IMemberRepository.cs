@@ -4,9 +4,9 @@ namespace Growtify.Application.Interfaces.Repositories
 {
     public interface IMemberRepository
     {
-        Task<IReadOnlyList<Member>> GetMembersAsync();
+        Task<List<Member>> GetMembersAsync();
         Task<Member?> GetMemberByIdAsync(string memberId);
-        Task<IReadOnlyList<Photo>> GetPhotosForMemberAsync(string memberId);
+        Task<List<Photo>> GetPhotosForMemberAsync(string memberId);
         void UpdateMember(Member member);
     }
 }

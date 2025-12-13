@@ -1,4 +1,4 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RegisterCreds, User } from '../../../types/user';
 import { AccountService } from '../../../core/services/account-service';
@@ -11,7 +11,6 @@ import { AccountService } from '../../../core/services/account-service';
 })
 export class Register {
   private accountService = inject(AccountService);
-  usersFromHome = input.required<User[]>(); // Example of input from parent component
   cancelRegister = output<boolean>();
   protected creds = {} as RegisterCreds;
 

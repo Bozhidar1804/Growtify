@@ -13,21 +13,21 @@ namespace Growtify.Infrastructure.Services.Repositories
         {
             this.context = context;
         }
-        public async Task<IReadOnlyList<Member>> GetMembersAsync()
+        public async Task<List<Member>> GetMembersAsync()
         {
             return await context.Members
-                .Include(m => m.Photos)
+                //.Include(m => m.Photos)
                 .AsNoTracking()
                 .ToListAsync();
         }
         public async Task<Member?> GetMemberByIdAsync(string memberId)
         {
             return await context.Members
-                .Include(m => m.Photos)
+                //.Include(m => m.Photos)
                 .FirstOrDefaultAsync(m => m.Id == memberId);
         }
 
-        public async Task<IReadOnlyList<Photo>> GetPhotosForMemberAsync(string memberId)
+        public async Task<List<Photo>> GetPhotosForMemberAsync(string memberId)
         {
             return await context.Members.Where(m => m.Id == memberId)
                                         .SelectMany(m => m.Photos)

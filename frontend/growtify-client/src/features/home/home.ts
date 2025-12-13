@@ -9,7 +9,6 @@ import { User } from '../../types/user';
   styleUrl: './home.css',
 })
 export class Home {
-  @Input({required: true}) usersFromApp: User[] = []; // Example of input from parent component
   protected registerMode = signal(false);
 
   showRegister(value: boolean) {

@@ -16,24 +16,39 @@ namespace Growtify.API.Controllers
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
             if (await EmailExists(registerDto.Email))
-            {
                 return BadRequest("Email is already taken.");
-            }
 
             using var hmac = new HMACSHA512();
 
-            AppUser newUser = new AppUser
+            AppUser appUser = new AppUser
             {
                 Email = registerDto.Email,
                 UserName = registerDto.UserName,
-                PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
+                PasswordHash = hmac.ComputeHash(
+                    Encoding.UTF8.GetBytes(registerDto.Password)),
                 PasswordSalt = hmac.Key
             };
 
-            dbContext.AppUsers.Add(newUser);
+            Member member = new Member
+            {
+                Id = appUser.Id,
+                UserName = registerDto.UserName,
+                Created = DateTime.UtcNow,
+                LastActive = DateTime.UtcNow,
+                City = "Unknown",
+                Country = "Unknown",
+                Gender = "Not specified",
+                DateOfBirth = DateOnly.FromDateTime(DateTime.UtcNow)
+            };
+
+            appUser.Member = member;
+
+            dbContext.AppUsers.Add(appUser);
+            dbContext.Members.Add(member);
+
             await dbContext.SaveChangesAsync();
 
-            return newUser.ToDto(tokenService); 
+            return appUser.ToDto(tokenService);
         }
 
         [HttpPost("login")] // POST: api/account/login
