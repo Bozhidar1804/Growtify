@@ -4,6 +4,8 @@ using Growtify.Infrastructure.Data;
 using Growtify.Infrastructure.Services;
 using Growtify.API.Extensions;
 using Growtify.API.Middlewares;
+using Growtify.Application.Interfaces.Repositories;
+using Growtify.Infrastructure.Services.Repositories;
 
 namespace Growtify.API
 {
@@ -23,6 +25,7 @@ namespace Growtify.API
             builder.Services.AddSwaggerGen();
             builder.Services.AddCors();
             builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddScoped<IMemberRepository, MemberRepository>();
             builder.Services.AddJwtAuthentication(builder.Configuration);
 
 
