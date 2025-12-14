@@ -7,6 +7,7 @@ import { TestErrors } from '../features/test-errors/test-errors';
 import { authGuard } from '../core/guards/auth-guard';
 import { NotFound } from '../shared/errors/not-found/not-found';
 import { ServerError } from '../shared/errors/server-error/server-error';
+import { MemberDetailed } from '../features/members/member-detailed/member-detailed';
 
 export const routes: Routes = [
     { path: '', component: Home },
@@ -18,6 +19,7 @@ export const routes: Routes = [
             { path: 'my-growth', component: MyGrowth },
             { path: 'account/:id', component: UserDetailed },
             { path: 'community', component: Community },
+            { path: 'members/:id', component: MemberDetailed }
         ]
     },
     { path: 'errors', component: TestErrors },

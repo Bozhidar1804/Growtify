@@ -13,6 +13,7 @@ namespace Growtify.API.Extensions
                 Id = user.Id,
                 Email = user.Email,
                 UserName = user.UserName,
+                ImageUrl = user.ImageUrl,
                 Token = tokenService.CreateToken(user)
             };
         }
