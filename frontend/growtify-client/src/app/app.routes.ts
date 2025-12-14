@@ -11,6 +11,7 @@ import { MemberDetailed } from '../features/members/member-detailed/member-detai
 import { MemberProfile } from '../features/members/member-profile/member-profile';
 import { MemberPhotos } from '../features/members/member-photos/member-photos';
 import { MemberMessages } from '../features/members/member-messages/member-messages';
+import { memberResolver } from '../features/members/member-resolver';
 
 export const routes: Routes = [
     { path: '', component: Home },
@@ -22,7 +23,10 @@ export const routes: Routes = [
             { path: 'my-growth', component: MyGrowth },
             { path: 'account/:id', component: UserDetailed },
             { path: 'community', component: Community },
-            { path: 'members/:id',
+            {
+                path: 'members/:id',
+                resolve: { member: memberResolver},
+                runGuardsAndResolvers: 'always',
                 component: MemberDetailed,
                 children: [
                     { path: '', redirectTo: 'profile', pathMatch: 'full' },
