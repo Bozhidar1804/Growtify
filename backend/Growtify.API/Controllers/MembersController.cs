@@ -15,7 +15,6 @@ namespace Growtify.API.Controllers
             return Ok(users);
         }
 
-        [Authorize]
         [HttpGet("{id}")] // localhost:5001/api/members/{id}
         public async Task<IActionResult> GetMemberById(string id)
         {

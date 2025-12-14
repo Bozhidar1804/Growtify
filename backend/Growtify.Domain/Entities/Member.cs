@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Growtify.Domain.Entities
 {
@@ -15,8 +16,11 @@ namespace Growtify.Domain.Entities
         public required string City { get; set; }
         public required string Country { get; set; }
 
+        [JsonIgnore]
+        public List<Photo> Photos { get; set; } = [];
+
+        [JsonIgnore]
         [ForeignKey(nameof(Id))]
         public AppUser User { get; set; } = null!;
-        public List<Photo> Photos { get; set; } = [];
     }
 }

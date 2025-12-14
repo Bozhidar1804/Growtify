@@ -1,4 +1,6 @@
-﻿namespace Growtify.Domain.Entities
+﻿using System.Text.Json.Serialization;
+
+namespace Growtify.Domain.Entities
 {
     public class AppUser
     {
@@ -10,6 +12,7 @@
 
         public required byte[] PasswordHash { get; set; }
         public required byte[] PasswordSalt { get; set; }
+        [JsonIgnore]
         public Member Member { get; set; } = null!;
     }
 }
