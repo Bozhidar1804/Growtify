@@ -8,5 +8,6 @@ namespace Growtify.Application.Interfaces.Repositories
         Task<Member?> GetMemberByIdAsync(string memberId);
         Task<List<Photo>> GetPhotosForMemberAsync(string memberId);
         void UpdateMember(Member member);
+        Task<bool> SaveChangesAsync();
     }
 }

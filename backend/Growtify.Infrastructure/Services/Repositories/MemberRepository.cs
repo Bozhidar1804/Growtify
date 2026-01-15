@@ -37,7 +37,13 @@ namespace Growtify.Infrastructure.Services.Repositories
 
         public void UpdateMember(Member member)
         {
-            context.Entry(member).State = EntityState.Modified;
+            //context.Entry(member).State = EntityState.Modified;
+            context.Members.Update(member);
+        }
+
+        public async Task<bool> SaveChangesAsync()
+        {
+            return await context.SaveChangesAsync() > 0;
         }
     }
 }
