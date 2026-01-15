@@ -25,6 +25,7 @@ namespace Growtify.API
             builder.Services.AddSwaggerGen();
             builder.Services.AddCors();
             builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddScoped<IMemberService, MemberService>();
             builder.Services.AddScoped<IMemberRepository, MemberRepository>();
             builder.Services.AddJwtAuthentication(builder.Configuration);
 

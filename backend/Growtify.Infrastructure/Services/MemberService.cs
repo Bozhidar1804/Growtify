@@ -33,7 +33,7 @@ namespace Growtify.Infrastructure.Services
 
             if (member == null) return false;
 
-            member.UserName = dto.UserName ?? member.UserName;
+            member.UserName = dto.DisplayName ?? member.UserName;
             member.Description = dto.Description ?? member.Description;
             member.City = dto.City ?? member.City;
             member.Country = dto.Country ?? member.Country;
