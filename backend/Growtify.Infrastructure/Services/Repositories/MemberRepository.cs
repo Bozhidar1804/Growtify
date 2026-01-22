@@ -45,5 +45,12 @@ namespace Growtify.Infrastructure.Services.Repositories
         {
             return await context.SaveChangesAsync() > 0;
         }
+
+        public async Task<Member?> GetMemberForUpdate(string id)
+        {
+            return await context.Members
+                .Include(m => m.User)
+                .SingleOrDefaultAsync(m => m.Id == id);
+        }
     }
 }

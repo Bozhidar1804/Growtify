@@ -1,4 +1,5 @@
-﻿using Growtify.Application.DTOs.Account;
+﻿using Growtify.API.Extensions;
+using Growtify.Application.DTOs.Account;
 using Growtify.Application.Interfaces;
 using Growtify.Application.Interfaces.Repositories;
 using Growtify.Domain.Entities;
@@ -40,12 +41,7 @@ namespace Growtify.API.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateMember(MemberUpdateDto memberUpdateDto)
         {
-            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (memberId == null)
-            {
-                return BadRequest("Member ID is missing");
-            }
+            var memberId = User.GetMemberId();
 
             var success = await memberService.UpdateMemberAsync(memberId, memberUpdateDto);
 
