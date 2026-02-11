@@ -1,10 +1,10 @@
 import { Component, HostListener, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { EditableMember, Member } from '../../../types/member';
 import { DatePipe } from '@angular/common';
 import { MemberService } from '../../../core/services/member-service';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ToastService } from '../../../core/services/toast-service';
+import { AccountService } from '../../../core/services/account-service';
 
 @Component({
   selector: 'app-member-profile',
@@ -19,6 +19,7 @@ export class MemberProfile implements OnInit, OnDestroy {
       $event.preventDefault();
     }
   }
+  private accountService = inject(AccountService);
   protected memberService = inject(MemberService);
   private toast = inject(ToastService);
   protected editableMember: EditableMember = {
@@ -40,23 +41,26 @@ export class MemberProfile implements OnInit, OnDestroy {
   updateProfile() {
     const currentMember = this.memberService.member();
     if (!currentMember) return;
+    const updatedMember = { ...this.memberService.member(), ...this.editableMember };
 
     this.memberService.updateMember(this.editableMember).subscribe({
       next: () => {
-        this.toast.success('Profile updated successfully');
+        const currentUser = this.accountService.currentUser();
+        if (currentUser) {
+            const updatedUser = { ...currentUser, userName: this.editableMember.displayName };
+            this.accountService.setCurrentUser(updatedUser);
+        }
 
         const updatedMember: Member = {
             ...currentMember,
-            userName: this.editableMember.displayName,
-            description: this.editableMember.description,
-            city: this.editableMember.city,
-            country: this.editableMember.country
+            ...this.editableMember,
+            userName: this.editableMember.displayName
         };
 
+        this.toast.success('Profile updated successfully');
         this.memberService.editMode.set(false);
+        
         this.memberService.member.set(updatedMember);
-
-        this.editForm?.reset(this.editableMember);
       }
     });
   }
