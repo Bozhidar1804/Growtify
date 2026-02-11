@@ -21,8 +21,6 @@ export class MemberProfile implements OnInit, OnDestroy {
   }
   protected memberService = inject(MemberService);
   private toast = inject(ToastService);
-  private route = inject(ActivatedRoute);
-  protected member = signal<Member | undefined>(undefined);
   protected editableMember: EditableMember = {
     displayName: '',
     description: '',
@@ -31,25 +29,36 @@ export class MemberProfile implements OnInit, OnDestroy {
   };
 
   ngOnInit(): void {
-    this.route.parent?.data.subscribe(data => {
-      this.member.set(data['member']);
-    }
-    );
-
     this.editableMember = {
-      displayName: this.member()?.userName || '',
-      description: this.member()?.description || '',
-      city: this.member()?.city || '',
-      country: this.member()?.country || ''
+      displayName: this.memberService.member()?.userName || '',
+      description: this.memberService.member()?.description || '',
+      city: this.memberService.member()?.city || '',
+      country: this.memberService.member()?.country || ''
     }
   }
 
   updateProfile() {
-    if (!this.member()) return;
-    const updatedMember = { ...this.member(), ...this.editableMember };
-    console.log(updatedMember);
-    this.toast.success('Profile updated successfully');
-    this.memberService.editMode.set(false);
+    const currentMember = this.memberService.member();
+    if (!currentMember) return;
+
+    this.memberService.updateMember(this.editableMember).subscribe({
+      next: () => {
+        this.toast.success('Profile updated successfully');
+
+        const updatedMember: Member = {
+            ...currentMember,
+            userName: this.editableMember.displayName,
+            description: this.editableMember.description,
+            city: this.editableMember.city,
+            country: this.editableMember.country
+        };
+
+        this.memberService.editMode.set(false);
+        this.memberService.member.set(updatedMember);
+
+        this.editForm?.reset(this.editableMember);
+      }
+    });
   }
 
   ngOnDestroy(): void {

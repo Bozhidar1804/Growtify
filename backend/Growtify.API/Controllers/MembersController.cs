@@ -1,11 +1,9 @@
 ﻿using Growtify.API.Extensions;
 using Growtify.Application.DTOs.Account;
 using Growtify.Application.Interfaces;
-using Growtify.Application.Interfaces.Repositories;
 using Growtify.Domain.Entities;
-using Growtify.Infrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Growtify.API.Controllers
 {
