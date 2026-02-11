@@ -29,7 +29,7 @@ namespace Growtify.Infrastructure.Services
 
         public async Task<bool> UpdateMemberAsync(string memberId, MemberUpdateDto dto)
         {
-            Member? member = await this.memberRepository.GetMemberByIdAsync(memberId);
+            Member? member = await this.memberRepository.GetMemberForUpdate(memberId);
 
             if (member == null) return false;
 
@@ -37,6 +37,8 @@ namespace Growtify.Infrastructure.Services
             member.Description = dto.Description ?? member.Description;
             member.City = dto.City ?? member.City;
             member.Country = dto.Country ?? member.Country;
+
+            member.User.UserName = dto.DisplayName ?? member.User.UserName;
 
             memberRepository.UpdateMember(member);
 
