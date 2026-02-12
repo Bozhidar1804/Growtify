@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Growtify.API.Controllers
 {
-    public class MembersController(IMemberService memberService) : BaseApiController
+    public class MembersController(IMemberService memberService, IPhotoService photoService) : BaseApiController
     {
         [HttpGet]
         public async Task<IActionResult> GetAllMembers()
@@ -20,7 +20,7 @@ namespace Growtify.API.Controllers
         [HttpGet("{id}")] // localhost:5001/api/members/{id}
         public async Task<IActionResult> GetMemberById(string id)
         {
-            Member? user = await memberService.GetByIdAsync(id);
+            Member? user = await memberService.GetMemberByIdAsync(id);
 
             if (user is null)
             {
@@ -49,6 +49,37 @@ namespace Growtify.API.Controllers
             }
 
             return NoContent();
+        }
+
+        [HttpPost("add-photo")]
+        public async Task<ActionResult<Photo>> AddPhoto([FromForm]IFormFile file)
+        {
+            var member = await memberService.GetMemberByIdAsync(User.GetMemberId());
+
+            if (member == null) return BadRequest("Cannot update member");
+
+            var result = await photoService.UploadPhotoAsync(file);
+
+            if (result.Error != null) return BadRequest(result.Error.Message);
+
+            var photo = new Photo
+            {
+                Url = result.SecureUrl.AbsoluteUri,
+                PublicId = result.PublicId,
+                MemberId = User.GetMemberId()
+            };
+
+            if (member.ImageUrl == null)
+            {
+                member.ImageUrl = photo.Url;
+                member.User.ImageUrl = photo.Url;
+            }
+
+            member.Photos.Add(photo);
+
+            if (await memberService.SaveAllAsync()) return photo;
+
+            return BadRequest("Problem adding photo");
         }
     }
 }
