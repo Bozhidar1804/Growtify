@@ -12,7 +12,7 @@ export class MemberService {
   private http = inject(HttpClient);
   private accountService = inject(AccountService);
   private baseUrl = environment.apiUrl;
-  editMode = signal(false);
+  editMode = signal(true);
   member = signal<Member | null>(null);
 
   getMembers() {
