@@ -1,5 +1,6 @@
 ﻿using Growtify.API.Extensions;
 using Growtify.Application.DTOs.Account;
+using Growtify.Application.DTOs.Photo;
 using Growtify.Application.Interfaces;
 using Growtify.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Growtify.API.Controllers
 {
+    [Authorize]
     public class MembersController(IMemberService memberService, IPhotoService photoService) : BaseApiController
     {
         [HttpGet]
@@ -31,9 +33,17 @@ namespace Growtify.API.Controllers
         }
 
         [HttpGet("{id}/photos")] // localhost:5001/api/members/{id}/photos
-        public async Task<ActionResult<IReadOnlyList<Photo>>> GetMemberPhotos(string id)
+        public async Task<ActionResult<IReadOnlyList<PhotoDto>>> GetMemberPhotos(string id)
         {
-            return Ok(await memberService.GetPhotosForMemberAsync(id));
+            List<Photo> photos = await memberService.GetPhotosForMemberAsync(id);
+
+            var photosDto = photos.Select(photo => new PhotoDto
+            {
+                Id = photo.Id,
+                Url = photo.Url,
+            });
+
+            return Ok(photosDto);
         }
 
         [HttpPut]
@@ -52,7 +62,7 @@ namespace Growtify.API.Controllers
         }
 
         [HttpPost("add-photo")]
-        public async Task<ActionResult<Photo>> AddPhoto([FromForm]IFormFile file)
+        public async Task<ActionResult<PhotoDto>> AddPhoto(IFormFile file)
         {
             var member = await memberService.GetMemberByIdAsync(User.GetMemberId());
 
@@ -77,9 +87,41 @@ namespace Growtify.API.Controllers
 
             member.Photos.Add(photo);
 
-            if (await memberService.SaveAllAsync()) return photo;
+            if (await memberService.SaveAllAsync())
+            {
+                return CreatedAtAction(nameof(GetMemberById),
+                new { id = member.Id },
+                new PhotoDto
+                {
+                    Id = photo.Id,
+                    Url = photo.Url
+                }
+                );
+            };
 
             return BadRequest("Problem adding photo");
+        }
+
+        [HttpPut("set-main-photo/{photoId}")]
+        public async Task<ActionResult> SetMainPhoto(int photoId)
+        {
+            var member = await memberService.GetMemberByIdAsync(User.GetMemberId());
+
+            if (member == null) return BadRequest("Cannot get member from token.");
+
+            var photo = member.Photos.SingleOrDefault(x =>  x.Id == photoId);
+
+            if (member.ImageUrl == photo?.Url || photo == null)
+            {
+                return BadRequest("Cannot set this as main image.");
+            }
+
+            member.ImageUrl = photo.Url;
+            member.User.ImageUrl = photo.Url;
+
+            if (await memberService.SaveAllAsync()) return NoContent();
+
+            return BadRequest("Problem settings main photo");
         }
     }
 }
