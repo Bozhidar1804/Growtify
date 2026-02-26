@@ -23,6 +23,7 @@ namespace Growtify.Infrastructure.Services.Repositories
         public async Task<Member?> GetMemberByIdAsync(string memberId)
         {
             return await context.Members
+                .Include(m => m.User)
                 .Include(m => m.Photos)
                 .FirstOrDefaultAsync(m => m.Id == memberId);
         }

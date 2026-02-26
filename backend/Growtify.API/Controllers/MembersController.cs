@@ -1,5 +1,6 @@
 ﻿using Growtify.API.Extensions;
 using Growtify.Application.DTOs.Account;
+using Growtify.Application.DTOs.Photo;
 using Growtify.Application.Interfaces;
 using Growtify.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -7,7 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Growtify.API.Controllers
 {
-    public class MembersController(IMemberService memberService) : BaseApiController
+    [Authorize]
+    public class MembersController(IMemberService memberService, IPhotoService photoService) : BaseApiController
     {
         [HttpGet]
         public async Task<IActionResult> GetAllMembers()
@@ -20,7 +22,7 @@ namespace Growtify.API.Controllers
         [HttpGet("{id}")] // localhost:5001/api/members/{id}
         public async Task<IActionResult> GetMemberById(string id)
         {
-            Member? user = await memberService.GetByIdAsync(id);
+            Member? user = await memberService.GetMemberByIdAsync(id);
 
             if (user is null)
             {
@@ -31,9 +33,17 @@ namespace Growtify.API.Controllers
         }
 
         [HttpGet("{id}/photos")] // localhost:5001/api/members/{id}/photos
-        public async Task<ActionResult<IReadOnlyList<Photo>>> GetMemberPhotos(string id)
+        public async Task<ActionResult<IReadOnlyList<PhotoDto>>> GetMemberPhotos(string id)
         {
-            return Ok(await memberService.GetPhotosForMemberAsync(id));
+            List<Photo> photos = await memberService.GetPhotosForMemberAsync(id);
+
+            var photosDto = photos.Select(photo => new PhotoDto
+            {
+                Id = photo.Id,
+                Url = photo.Url,
+            });
+
+            return Ok(photosDto);
         }
 
         [HttpPut]
@@ -49,6 +59,96 @@ namespace Growtify.API.Controllers
             }
 
             return NoContent();
+        }
+
+        [HttpPost("add-photo")]
+        public async Task<ActionResult<PhotoDto>> AddPhoto(IFormFile file)
+        {
+            var member = await memberService.GetMemberByIdAsync(User.GetMemberId());
+
+            if (member == null) return BadRequest("Cannot update member");
+
+            var result = await photoService.UploadPhotoAsync(file);
+
+            if (result.Error != null) return BadRequest(result.Error.Message);
+
+            var photo = new Photo
+            {
+                Url = result.SecureUrl.AbsoluteUri,
+                PublicId = result.PublicId,
+                MemberId = User.GetMemberId()
+            };
+
+            if (member.ImageUrl == null)
+            {
+                member.ImageUrl = photo.Url;
+                member.User.ImageUrl = photo.Url;
+            }
+
+            member.Photos.Add(photo);
+
+            if (await memberService.SaveAllAsync())
+            {
+                return CreatedAtAction(nameof(GetMemberById),
+                new { id = member.Id },
+                new PhotoDto
+                {
+                    Id = photo.Id,
+                    Url = photo.Url
+                }
+                );
+            };
+
+            return BadRequest("Problem adding photo");
+        }
+
+        [HttpPut("set-main-photo/{photoId}")]
+        public async Task<ActionResult> SetMainPhoto(int photoId)
+        {
+            var member = await memberService.GetMemberByIdAsync(User.GetMemberId());
+
+            if (member == null) return BadRequest("Cannot get member from token.");
+
+            var photo = member.Photos.SingleOrDefault(x =>  x.Id == photoId);
+
+            if (member.ImageUrl == photo?.Url || photo == null)
+            {
+                return BadRequest("Cannot set this as main image.");
+            }
+
+            member.ImageUrl = photo.Url;
+            member.User.ImageUrl = photo.Url;
+
+            if (await memberService.SaveAllAsync()) return NoContent();
+
+            return BadRequest("Problem settings main photo");
+        }
+
+        [HttpDelete("delete-photo/{photoId}")]
+        public async Task<ActionResult> DeletePhoto(int photoId)
+        {
+            var member = await memberService.GetMemberByIdAsync(User.GetMemberId());
+
+            if (member == null) return BadRequest("Cannot get member from token.");
+
+            var photo = member.Photos.SingleOrDefault(x => x.Id == photoId);
+
+            if (photo == null || photo.Url == member.ImageUrl)
+            {
+                return BadRequest("Cannot delete this photo.");
+            }
+
+            if (photo.PublicId != null)
+            {
+                var result = await photoService.DeletePhotoAsync(photo.PublicId);
+                if (result.Error != null) return BadRequest(result.Error.Message);
+            }
+
+            member.Photos.Remove(photo);
+
+            if (await memberService.SaveAllAsync()) return Ok();
+
+            return BadRequest("Problem deleting photo");
         }
     }
 }

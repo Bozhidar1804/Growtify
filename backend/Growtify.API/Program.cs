@@ -1,11 +1,13 @@
-using Microsoft.EntityFrameworkCore;
-using Growtify.Application.Interfaces;
-using Growtify.Infrastructure.Data;
-using Growtify.Infrastructure.Services;
 using Growtify.API.Extensions;
 using Growtify.API.Middlewares;
+using Growtify.Application.Interfaces;
 using Growtify.Application.Interfaces.Repositories;
+using Growtify.Infrastructure.Data;
+using Growtify.Infrastructure.Helpers;
+using Growtify.Infrastructure.Services;
 using Growtify.Infrastructure.Services.Repositories;
+using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 namespace Growtify.API
 {
@@ -18,7 +20,10 @@ namespace Growtify.API
             // Add services to the container.
             string? connectionString = builder.Configuration.GetConnectionString("GrowtifyConnection") ?? throw new InvalidOperationException("Connection string 'GrowtifyConnection' not found.");
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            });
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -26,7 +31,9 @@ namespace Growtify.API
             builder.Services.AddCors();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IMemberService, MemberService>();
+            builder.Services.AddScoped<IPhotoService, PhotoService>();
             builder.Services.AddScoped<IMemberRepository, MemberRepository>();
+            builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
             builder.Services.AddJwtAuthentication(builder.Configuration);
 
 
@@ -76,7 +83,7 @@ namespace Growtify.API
             {
                 var logger = services.GetRequiredService<ILogger<Program>>();
                 logger.LogError(ex, "An error occured during migration/seeding the database!");
-            }
+            };
 
             app.Run();
         }

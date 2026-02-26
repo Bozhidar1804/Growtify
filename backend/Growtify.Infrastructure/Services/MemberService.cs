@@ -17,7 +17,7 @@ namespace Growtify.Infrastructure.Services
             return await this.memberRepository.GetMembersAsync();
         }
 
-        public async Task<Member?> GetByIdAsync(string id)
+        public async Task<Member?> GetMemberByIdAsync(string id)
         {
             return await this.memberRepository.GetMemberByIdAsync(id);
         }
@@ -42,6 +42,11 @@ namespace Growtify.Infrastructure.Services
 
             memberRepository.UpdateMember(member);
 
+            return await memberRepository.SaveChangesAsync();
+        }
+
+        public async Task<bool> SaveAllAsync()
+        {
             return await memberRepository.SaveChangesAsync();
         }
     }

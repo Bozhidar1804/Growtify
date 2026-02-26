@@ -12,7 +12,7 @@ namespace Growtify.API.Extensions
             {
                 id = user.FindFirstValue("nameid");
             }
-
+            
             return id ?? throw new Exception("Cannot get memberId from token");
         }
     }
