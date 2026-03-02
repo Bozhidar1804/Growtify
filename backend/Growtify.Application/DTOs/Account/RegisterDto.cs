@@ -12,5 +12,17 @@ namespace Growtify.Application.DTOs.Account
         [Required]
         [MinLength(4)]
         public string Password { get; set; } = string.Empty;
+
+        [Required]
+        public string Gender {  get; set; } = string.Empty;
+
+        [Required]
+        public string City { get; set; } = string.Empty;
+
+        [Required]
+        public string Country { get; set; } = string.Empty;
+
+        [Required]
+        public DateOnly DateOfBirth { get; set; }
     }
 }

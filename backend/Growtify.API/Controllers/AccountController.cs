@@ -24,8 +24,7 @@ namespace Growtify.API.Controllers
             {
                 Email = registerDto.Email,
                 UserName = registerDto.UserName,
-                PasswordHash = hmac.ComputeHash(
-                    Encoding.UTF8.GetBytes(registerDto.Password)),
+                PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
                 PasswordSalt = hmac.Key
             };
 
@@ -33,12 +32,12 @@ namespace Growtify.API.Controllers
             {
                 Id = appUser.Id,
                 UserName = registerDto.UserName,
+                Gender = registerDto.Gender,
+                City = registerDto.City,
+                Country = registerDto.Country,
+                DateOfBirth = registerDto.DateOfBirth,
                 Created = DateTime.UtcNow,
-                LastActive = DateTime.UtcNow,
-                City = "Unknown",
-                Country = "Unknown",
-                Gender = "Not specified",
-                DateOfBirth = DateOnly.FromDateTime(DateTime.UtcNow)
+                LastActive = DateTime.UtcNow
             };
 
             appUser.Member = member;
