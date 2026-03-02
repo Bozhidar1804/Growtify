@@ -26,7 +26,14 @@ namespace Growtify.API.Controllers
                 UserName = registerDto.UserName,
                 PasswordHash = hmac.ComputeHash(
                     Encoding.UTF8.GetBytes(registerDto.Password)),
-                PasswordSalt = hmac.Key
+                PasswordSalt = hmac.Key,
+                Member = new Member
+                {
+                    UserName = registerDto.UserName,
+                    Gender = registerDto.Gender,
+                    City = registerDto.City,
+                    Country = registerDto.Country
+                }
             };
 
             Member member = new Member
