@@ -12,7 +12,7 @@
         @if(currentStep() === 1) {
             <form [formGroup]="credentialsForm" class="flex flex-col gap-4 w-full steps">
             <app-text-input class="mt-2" label="Email" formControlName="email"/>
-            <app-text-input label="Display name" formControlName="displayName"/>
+            <app-text-input label="Display name" formControlName="userName"/>
             <app-text-input label="Password" formControlName="password" type="password"/>
             <app-text-input label="Confirm password" formControlName="confirmPassword" type="password"/>
             <div class="flex items-center justify-end gap-3">
@@ -56,10 +56,13 @@
             </form> 
         } 
     </div>
-    <div class="flex flex-col items-start px-3 w-full mockup-code text-lg">
-        <div>Creds value: {{credentialsForm.value | json}}</div>
-        <div>Creds status: {{credentialsForm.status | json}}</div>
-        <div>Profile value: {{profileForm.value | json}}</div>
-        <div>Profile status: {{profileForm.status | json}}</div>
-    </div>
+    @if(validationErrors().length > 0) {
+        <div class="mt-5 flex bg-gray-200 rounded-2xl w-1/2 p-3 mx-auto">
+            <ul class="flex flex-col text-error space-y-1">
+                @for (error of validationErrors(); track $index) {
+                    <li>{{error}}</li>
+                }
+            </ul>
+        </div>
+    }
 </div>

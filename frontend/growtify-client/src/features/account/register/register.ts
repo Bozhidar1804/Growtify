@@ -1,9 +1,10 @@
 import { Component, inject, output, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { RegisterCreds, User } from '../../../types/user';
+import { RegisterCreds } from '../../../types/user';
 import { AccountService } from '../../../core/services/account-service';
 import { JsonPipe } from '@angular/common';
 import { TextInput } from '../../../shared/text-input/text-input';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -13,23 +14,25 @@ import { TextInput } from '../../../shared/text-input/text-input';
 })
 export class Register {
   private accountService = inject(AccountService);
+  private router = inject(Router);
   private fb = inject(FormBuilder);
   cancelRegister = output<boolean>();
   protected creds = {} as RegisterCreds;
   protected credentialsForm: FormGroup;
   protected profileForm: FormGroup;
   protected currentStep = signal(1);
+  protected validationErrors = signal<string[]>([]);
 
   constructor() {
     this.credentialsForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      displayName: ['', [Validators.required]],
+      userName: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(8)]],
       confirmPassword: ['', [Validators.required, this.matchValues('password')]]
     });
 
     this.profileForm = this.fb.group({
-      gender: ['', [Validators.required]],
+      gender: ['male', [Validators.required]],
       dateOfBirth: ['', [Validators.required]],
       city: ['', [Validators.required]],
       country: ['', [Validators.required]],
@@ -69,15 +72,17 @@ export class Register {
   register() {
     if (this.credentialsForm.valid && this.profileForm.valid) {
       const formData = { ...this.credentialsForm.value, ...this.profileForm.value };
-      console.log('Form data: ', formData);
+
+      this.accountService.register(formData).subscribe({
+        next: () => {
+          this.router.navigateByUrl('/community');
+        },
+        error: error => {
+          console.log(error)
+          this.validationErrors.set(error);
+        }
+      });
     }
-    // this.accountService.register(this.creds).subscribe({
-    //   next: response => {
-    //     console.log(response);
-    //     this.cancel();
-    //   },
-    //   error: error => console.log(error)
-    // });
   }
 
   cancel() {
