@@ -15,6 +15,8 @@ namespace Growtify.Infrastructure.Services.Repositories
         }
         public async Task<List<Member>> GetMembersAsync()
         {
+            var query = context.Members.AsQueryable();
+
             return await context.Members
                 .Include(m => m.Photos)
                 .AsNoTracking()
