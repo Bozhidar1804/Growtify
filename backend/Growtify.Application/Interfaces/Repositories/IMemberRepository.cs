@@ -1,10 +1,11 @@
 ﻿using Growtify.Domain.Entities;
+using Growtify.Application.Common.Pagination;
 
 namespace Growtify.Application.Interfaces.Repositories
 {
     public interface IMemberRepository
     {
-        Task<List<Member>> GetMembersAsync();
+        Task<PaginatedResult<Member>> GetMembersAsync(PagingParams pagingParams);
         Task<Member?> GetMemberByIdAsync(string memberId);
         Task<List<Photo>> GetPhotosForMemberAsync(string memberId);
         void UpdateMember(Member member);

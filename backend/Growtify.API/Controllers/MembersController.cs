@@ -1,4 +1,5 @@
 ﻿using Growtify.API.Extensions;
+using Growtify.Application.Common.Pagination;
 using Growtify.Application.DTOs.Account;
 using Growtify.Application.DTOs.Photo;
 using Growtify.Application.Interfaces;
@@ -12,9 +13,9 @@ namespace Growtify.API.Controllers
     public class MembersController(IMemberService memberService, IPhotoService photoService) : BaseApiController
     {
         [HttpGet]
-        public async Task<IActionResult> GetAllMembers()
+        public async Task<IActionResult> GetAllMembers([FromQuery]PagingParams pagingParams)
         {
-            List<Member> users = await memberService.GetAllAsync();
+            PaginatedResult<Member> users = await memberService.GetAllAsync(pagingParams);
 
             return Ok(users);
         }

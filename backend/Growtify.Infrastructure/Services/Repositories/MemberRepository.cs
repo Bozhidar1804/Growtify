@@ -1,6 +1,8 @@
-﻿using Growtify.Application.Interfaces.Repositories;
+﻿using Growtify.Application.Common.Pagination;
+using Growtify.Application.Interfaces.Repositories;
 using Growtify.Domain.Entities;
 using Growtify.Infrastructure.Data;
+using Growtify.Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace Growtify.Infrastructure.Services.Repositories
@@ -13,14 +15,11 @@ namespace Growtify.Infrastructure.Services.Repositories
         {
             this.context = context;
         }
-        public async Task<List<Member>> GetMembersAsync()
+        public async Task<PaginatedResult<Member>> GetMembersAsync(PagingParams pagingParams)
         {
             var query = context.Members.AsQueryable();
 
-            return await context.Members
-                .Include(m => m.Photos)
-                .AsNoTracking()
-                .ToListAsync();
+            return await PaginationHelper.CreateAsync(query, pagingParams.PageNumber, pagingParams.PageSize);
         }
         public async Task<Member?> GetMemberByIdAsync(string memberId)
         {
