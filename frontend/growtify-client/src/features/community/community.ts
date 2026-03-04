@@ -1,15 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MemberService } from '../../core/services/member-service';
-import { Observable } from 'rxjs';
 import { Member } from '../../types/member';
-import { AsyncPipe } from '@angular/common';
 import { MemberCard } from "../members/member-card/member-card";
 import { PaginatedResult } from '../../types/pagination';
 import { Paginator } from "../../shared/paginator/paginator";
 
 @Component({
   selector: 'app-community',
-  imports: [AsyncPipe, MemberCard, Paginator],
+  imports: [MemberCard, Paginator],
   templateUrl: './community.html',
   styleUrl: './community.css',
 })

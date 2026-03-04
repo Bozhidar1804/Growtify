@@ -8,7 +8,7 @@ namespace Growtify.Application.Interfaces
     {
         Task<bool> UpdateMemberAsync(string memberId, MemberUpdateDto dto);
         Task<Member?> GetMemberByIdAsync(string id);
-        Task<PaginatedResult<Member>> GetAllAsync(PagingParams pagingParams);
+        Task<PaginatedResult<Member>> GetAllAsync(MemberParams memberParams);
         Task<List<Photo>> GetPhotosForMemberAsync(string memberId);
         Task<bool> SaveAllAsync();
     }

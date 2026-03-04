@@ -13,9 +13,11 @@ namespace Growtify.API.Controllers
     public class MembersController(IMemberService memberService, IPhotoService photoService) : BaseApiController
     {
         [HttpGet]
-        public async Task<IActionResult> GetAllMembers([FromQuery]PagingParams pagingParams)
+        public async Task<IActionResult> GetAllMembers([FromQuery]MemberParams memberParams)
         {
-            PaginatedResult<Member> users = await memberService.GetAllAsync(pagingParams);
+            memberParams.CurrentMemberId = User.GetMemberId();
+
+            PaginatedResult<Member> users = await memberService.GetAllAsync(memberParams); 
 
             return Ok(users);
         }

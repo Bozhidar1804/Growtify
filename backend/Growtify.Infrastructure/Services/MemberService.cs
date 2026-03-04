@@ -14,9 +14,9 @@ namespace Growtify.Infrastructure.Services
         {
             this.memberRepository = memberRepository;
         }
-        public async Task<PaginatedResult<Member>> GetAllAsync([FromQuery] PagingParams pagingParams)
+        public async Task<PaginatedResult<Member>> GetAllAsync([FromQuery] MemberParams memberParams)
         {
-            return await this.memberRepository.GetMembersAsync(pagingParams);
+            return await this.memberRepository.GetMembersAsync(memberParams);
         }
 
         public async Task<Member?> GetMemberByIdAsync(string id)
