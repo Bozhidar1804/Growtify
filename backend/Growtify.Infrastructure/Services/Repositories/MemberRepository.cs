@@ -26,6 +26,11 @@ namespace Growtify.Infrastructure.Services.Repositories
                 query = query.Where(x => x.Gender == memberParams.Gender);
             }
 
+            var minDob = DateOnly.FromDateTime(DateTime.Today.AddYears(-memberParams.MaxAge - 1));
+            var maxDob = DateOnly.FromDateTime(DateTime.Today.AddYears(-memberParams.MinAge));
+
+            query = query.Where(x => x.DateOfBirth >= minDob && x.DateOfBirth <= maxDob);
+
             return await PaginationHelper.CreateAsync(query, memberParams.PageNumber, memberParams.PageSize);
         }
         public async Task<Member?> GetMemberByIdAsync(string memberId)
