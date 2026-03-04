@@ -5,18 +5,31 @@ import { Member } from '../../types/member';
 import { AsyncPipe } from '@angular/common';
 import { MemberCard } from "../members/member-card/member-card";
 import { PaginatedResult } from '../../types/pagination';
+import { Paginator } from "../../shared/paginator/paginator";
 
 @Component({
   selector: 'app-community',
-  imports: [AsyncPipe, MemberCard],
+  imports: [AsyncPipe, MemberCard, Paginator],
   templateUrl: './community.html',
   styleUrl: './community.css',
 })
 export class Community {
   private memberService = inject(MemberService);
-  protected paginatedMembers$: Observable<PaginatedResult<Member>>;
+  protected paginatedMembers$?: Observable<PaginatedResult<Member>>;
+  pageNumber = 1;
+  pageSize = 5;
 
   constructor() {
-    this.paginatedMembers$ = this.memberService.getMembers();
+    this.loadMembers();
+  }
+
+  loadMembers() {
+    this.paginatedMembers$ = this.memberService.getMembers(this.pageNumber, this.pageSize);
+  }
+
+  onPageChange(event: { pageNumber: number; pageSize: number }) {
+    this.pageNumber = event.pageNumber;
+    this.pageSize = event.pageSize;
+    this.loadMembers();
   }
 }
