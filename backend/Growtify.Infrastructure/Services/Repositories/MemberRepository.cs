@@ -1,6 +1,8 @@
-﻿using Growtify.Application.Interfaces.Repositories;
+﻿using Growtify.Application.Common.Pagination;
+using Growtify.Application.Interfaces.Repositories;
 using Growtify.Domain.Entities;
 using Growtify.Infrastructure.Data;
+using Growtify.Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace Growtify.Infrastructure.Services.Repositories
@@ -13,12 +15,29 @@ namespace Growtify.Infrastructure.Services.Repositories
         {
             this.context = context;
         }
-        public async Task<List<Member>> GetMembersAsync()
+        public async Task<PaginatedResult<Member>> GetMembersAsync(MemberParams memberParams)
         {
-            return await context.Members
-                .Include(m => m.Photos)
-                .AsNoTracking()
-                .ToListAsync();
+            var query = context.Members.AsQueryable();
+
+            query = query.Where(x => x.Id != memberParams.CurrentMemberId);
+
+            if (memberParams.Gender != null)
+            {
+                query = query.Where(x => x.Gender == memberParams.Gender);
+            }
+
+            var minDob = DateOnly.FromDateTime(DateTime.Today.AddYears(-memberParams.MaxAge - 1));
+            var maxDob = DateOnly.FromDateTime(DateTime.Today.AddYears(-memberParams.MinAge));
+
+            query = query.Where(x => x.DateOfBirth >= minDob && x.DateOfBirth <= maxDob);
+
+            query = memberParams.OrderBy switch
+            {
+                "created" => query.OrderByDescending(x => x.Created),
+                _ => query.OrderByDescending(x => x.LastActive)
+            };
+
+            return await PaginationHelper.CreateAsync(query, memberParams.PageNumber, memberParams.PageSize);
         }
         public async Task<Member?> GetMemberByIdAsync(string memberId)
         {

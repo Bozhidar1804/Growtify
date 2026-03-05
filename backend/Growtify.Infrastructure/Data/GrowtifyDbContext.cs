@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
 using Growtify.Domain.Entities;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Growtify.Infrastructure.Data
 {
@@ -33,6 +34,22 @@ namespace Growtify.Infrastructure.Data
 
                 // TODO: make every entity's configuration in a separate class - AppUserConfiguration
             });
+
+            var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
+                v => v.ToUniversalTime(),
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
+            );
+
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetProperties())
+                {
+                    if (property.ClrType == typeof(DateTime))
+                    {
+                        property.SetValueConverter(dateTimeConverter);
+                    }
+                }
+            }
         }
     }
 }

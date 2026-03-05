@@ -1,7 +1,9 @@
-﻿using Growtify.Application.DTOs.Account;
+﻿using Growtify.Application.Common.Pagination;
+using Growtify.Application.DTOs.Account;
 using Growtify.Application.Interfaces;
 using Growtify.Application.Interfaces.Repositories;
 using Growtify.Domain.Entities;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Growtify.Infrastructure.Services
 {
@@ -12,9 +14,9 @@ namespace Growtify.Infrastructure.Services
         {
             this.memberRepository = memberRepository;
         }
-        public async Task<List<Member>> GetAllAsync()
+        public async Task<PaginatedResult<Member>> GetAllAsync([FromQuery] MemberParams memberParams)
         {
-            return await this.memberRepository.GetMembersAsync();
+            return await this.memberRepository.GetMembersAsync(memberParams);
         }
 
         public async Task<Member?> GetMemberByIdAsync(string id)

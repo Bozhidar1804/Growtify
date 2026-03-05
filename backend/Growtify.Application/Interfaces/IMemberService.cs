@@ -1,4 +1,5 @@
-﻿using Growtify.Application.DTOs.Account;
+﻿using Growtify.Application.Common.Pagination;
+using Growtify.Application.DTOs.Account;
 using Growtify.Domain.Entities;
 
 namespace Growtify.Application.Interfaces
@@ -7,7 +8,7 @@ namespace Growtify.Application.Interfaces
     {
         Task<bool> UpdateMemberAsync(string memberId, MemberUpdateDto dto);
         Task<Member?> GetMemberByIdAsync(string id);
-        Task<List<Member>> GetAllAsync();
+        Task<PaginatedResult<Member>> GetAllAsync(MemberParams memberParams);
         Task<List<Photo>> GetPhotosForMemberAsync(string memberId);
         Task<bool> SaveAllAsync();
     }
