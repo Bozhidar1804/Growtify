@@ -1,4 +1,5 @@
 using Growtify.API.Extensions;
+using Growtify.API.Filters;
 using Growtify.API.Middlewares;
 using Growtify.Application.Interfaces;
 using Growtify.Application.Interfaces.Repositories;
@@ -33,6 +34,7 @@ namespace Growtify.API
             builder.Services.AddScoped<IMemberService, MemberService>();
             builder.Services.AddScoped<IPhotoService, PhotoService>();
             builder.Services.AddScoped<IMemberRepository, MemberRepository>();
+            builder.Services.AddScoped<LogUserActivity>();
             builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
             builder.Services.AddJwtAuthentication(builder.Configuration);
 
