@@ -45,7 +45,8 @@ export class Community implements OnInit {
   }
 
   onFilterChange(data: MemberParams) {
-    console.log('Modal submitted data: ', data);
+    this.memberParams = data;
+    this.loadMembers();
   }
 
   resetFilters() {
