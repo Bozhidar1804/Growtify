@@ -23,4 +23,7 @@
 </div>
 }
 
-<app-filter-modal #filterModal [hidden]="!paginatedMembers()" (closeModal)="onClose()" (submitData)="onFilterChange($event)" />
+<app-filter-modal #filterModal
+[hidden]="!paginatedMembers()"
+(closeModal)="onClose()"
+(submitData)="onFilterChange($event)" />

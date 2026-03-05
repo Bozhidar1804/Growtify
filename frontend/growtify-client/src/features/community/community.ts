@@ -61,6 +61,14 @@ export class Community implements OnInit {
 
   resetFilters() {
     this.memberParams = new MemberParams();
+    this.updatedParams = new MemberParams();
+
+    localStorage.removeItem('filters');
+
+    if (this.modal) {
+      this.modal.memberParams.set(new MemberParams());
+    }
+
     this.loadMembers();
   }
 
