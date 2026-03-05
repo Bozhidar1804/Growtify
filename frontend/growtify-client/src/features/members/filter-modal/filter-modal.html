@@ -19,6 +19,14 @@
                     <input type="number" class="input w-20" [min]="memberParams.minAge || 18" [(ngModel)]="memberParams.maxAge" name="maxAge" (change)="onMaxAgeChange()">
                 </div>
             </label>
+            <label class="flex justify-between items-center">
+                <span class="font-semibold">Order by:</span>
+                <select name="orderBy" class="select" [(ngModel)]="memberParams.orderBy">
+                    <option disabled selected>Order by</option>
+                    <option value="created">Newest member</option>
+                    <option value="lastActive">Last Active</option>
+                </select>
+            </label>
         </div>
     </div>
 
