@@ -1,5 +1,5 @@
 ﻿using Growtify.Application.DTOs.Account;
-using Growtify.Application.Interfaces;
+using Growtify.Application.Interfaces.Services;
 using Growtify.Domain.Entities;
 
 namespace Growtify.API.Extensions

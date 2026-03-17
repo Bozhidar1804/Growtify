@@ -1,11 +1,11 @@
 ﻿using Growtify.Application.Common.Pagination;
 using Growtify.Application.DTOs.Account;
-using Growtify.Application.Interfaces;
+using Growtify.Application.Interfaces.Services;
 using Growtify.Application.Interfaces.Repositories;
 using Growtify.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Growtify.Infrastructure.Services
+namespace Growtify.Application.Services
 {
     public class MemberService : IMemberService
     {

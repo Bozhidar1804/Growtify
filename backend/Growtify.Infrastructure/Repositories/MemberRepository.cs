@@ -5,7 +5,7 @@ using Growtify.Infrastructure.Data;
 using Growtify.Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 
-namespace Growtify.Infrastructure.Services.Repositories
+namespace Growtify.Infrastructure.Repositories
 {
     public class MemberRepository : IMemberRepository
     {

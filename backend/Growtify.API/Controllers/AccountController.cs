@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Growtify.Domain.Entities;
 using Growtify.Infrastructure.Data;
 using Growtify.Application.DTOs.Account;
-using Growtify.Application.Interfaces;
+using Growtify.Application.Interfaces.Services;
 using Growtify.API.Extensions;
 
 namespace Growtify.API.Controllers
