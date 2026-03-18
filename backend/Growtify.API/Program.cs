@@ -1,15 +1,10 @@
 using Growtify.API.Extensions;
-using Growtify.API.Filters;
 using Growtify.API.Middlewares;
-using Growtify.Application.Interfaces.Services;
-using Growtify.Application.Interfaces.Repositories;
-using Growtify.Application.Services;
-using Growtify.Application.Common.Settings;
 using Growtify.Infrastructure.Data;
-using Growtify.Infrastructure.Services;
-using Growtify.Infrastructure.Repositories;
+using Growtify.Infrastructure.DepedencyInjection;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
+using Growtify.Application.Common.DependencyInjection;
 
 namespace Growtify.API
 {
@@ -29,14 +24,11 @@ namespace Growtify.API
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddCors();
-            builder.Services.AddScoped<ITokenService, TokenService>();
-            builder.Services.AddScoped<IMemberService, MemberService>();
-            builder.Services.AddScoped<IPhotoService, PhotoService>();
-            builder.Services.AddScoped<IMemberRepository, MemberRepository>();
-            builder.Services.AddScoped<IAccountRepository, AccountRepository>();
-            builder.Services.AddScoped<IAccountService, AccountService>();
-            builder.Services.AddScoped<LogUserActivity>();
-            builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
+
+            builder.Services.AddApiServices();
+            builder.Services.AddApplication();
+            builder.Services.AddInfrastructure(builder.Configuration);
+
             builder.Services.AddJwtAuthentication(builder.Configuration);
 
             builder.Services
