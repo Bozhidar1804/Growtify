@@ -10,7 +10,6 @@ namespace Growtify.Infrastructure.Repositories
     public class MemberRepository : IMemberRepository
     {
         private readonly GrowtifyDbContext context;
-
         public MemberRepository(GrowtifyDbContext context)
         {
             this.context = context;
