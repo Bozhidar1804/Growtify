@@ -20,20 +20,13 @@ namespace Growtify.Infrastructure.Data
         public DbSet<AppUser> AppUsers { get; set; }
         public DbSet<Member> Members { get; set; }
         public DbSet<Photo> Photos { get; set; }
-
+        public DbSet<MemberLike> Likes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<AppUser>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.UserName).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.Email).IsRequired().HasMaxLength(200);
-                entity.Property(e => e.CreatedAt).IsRequired();
 
-                // TODO: make every entity's configuration in a separate class - AppUserConfiguration
-            });
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(GrowtifyDbContext).Assembly);
 
             var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
                 v => v.ToUniversalTime(),
