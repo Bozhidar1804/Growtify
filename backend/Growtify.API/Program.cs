@@ -1,14 +1,10 @@
 using Growtify.API.Extensions;
-using Growtify.API.Filters;
 using Growtify.API.Middlewares;
-using Growtify.Application.Interfaces;
-using Growtify.Application.Interfaces.Repositories;
 using Growtify.Infrastructure.Data;
-using Growtify.Infrastructure.Helpers;
-using Growtify.Infrastructure.Services;
-using Growtify.Infrastructure.Services.Repositories;
+using Growtify.Infrastructure.DepedencyInjection;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
+using Growtify.Application.Common.DependencyInjection;
 
 namespace Growtify.API
 {
@@ -18,7 +14,6 @@ namespace Growtify.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
             string? connectionString = builder.Configuration.GetConnectionString("GrowtifyConnection") ?? throw new InvalidOperationException("Connection string 'GrowtifyConnection' not found.");
 
             builder.Services.AddControllers().AddJsonOptions(options =>
@@ -26,22 +21,15 @@ namespace Growtify.API
                 options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
             });
 
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddCors();
-            builder.Services.AddScoped<ITokenService, TokenService>();
-            builder.Services.AddScoped<IMemberService, MemberService>();
-            builder.Services.AddScoped<IPhotoService, PhotoService>();
-            builder.Services.AddScoped<IMemberRepository, MemberRepository>();
-            builder.Services.AddScoped<LogUserActivity>();
-            builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
+
+            builder.Services.AddApiServices();
+            builder.Services.AddApplication();
+            builder.Services.AddInfrastructure(builder.Configuration);
+
             builder.Services.AddJwtAuthentication(builder.Configuration);
-
-
-            // TODO: Register Application layer services (example, add later)
-            // builder.Services.AddScoped<IUserProfileService, UserProfileService>();
-            // !!! OR create an AddServices() method that registers all services in the Application layer
 
             builder.Services
                 .AddDbContext<GrowtifyDbContext>(options =>

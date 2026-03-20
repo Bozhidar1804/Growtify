@@ -1,7 +1,8 @@
 ﻿using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 
-namespace Growtify.Application.Interfaces
+
+namespace Growtify.Application.Interfaces.Services
 {
     public interface IPhotoService
     {

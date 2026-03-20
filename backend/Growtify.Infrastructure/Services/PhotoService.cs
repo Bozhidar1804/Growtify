@@ -1,12 +1,14 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
-using Growtify.Application.Interfaces;
-using Growtify.Infrastructure.Helpers;
+using Growtify.Application.Common.Settings;
+using Growtify.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
 namespace Growtify.Infrastructure.Services
 {
+    // PhotoService is responsible for handling photo uploads and deletions using Cloudinary. It implements the IPhotoService interface defined in the Application layer, allowing for abstraction and separation of concerns. The service uses Cloudinary's SDK to interact with the Cloudinary API, enabling efficient management of photos in the application.
+    // PhotoService is implemented in Infrastructure layer because it uses CloudinaryDotNet, which is not needed in the Application layer. This way, we keep the Application layer clean and focused on business logic, while the Infrastructure layer handles the implementation details of photo management.
     public class PhotoService : IPhotoService
     {
         private readonly Cloudinary _cloudinary;
@@ -33,7 +35,7 @@ namespace Growtify.Infrastructure.Services
                     Transformation = new Transformation().Width(500).Height(500).Crop("fill").Gravity("face"),
                     Folder = "da-ang20"
                 };
-                
+
                 uploadResult = await _cloudinary.UploadAsync(uploadParams);
             }
 

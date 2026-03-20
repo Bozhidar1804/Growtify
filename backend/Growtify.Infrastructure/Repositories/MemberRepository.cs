@@ -5,17 +5,16 @@ using Growtify.Infrastructure.Data;
 using Growtify.Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 
-namespace Growtify.Infrastructure.Services.Repositories
+namespace Growtify.Infrastructure.Repositories
 {
     public class MemberRepository : IMemberRepository
     {
         private readonly GrowtifyDbContext context;
-
         public MemberRepository(GrowtifyDbContext context)
         {
             this.context = context;
         }
-        public async Task<PaginatedResult<Member>> GetMembersAsync(MemberParams memberParams)
+        public async Task<PaginatedResult<Member>> GetAllMembersAsync(MemberParams memberParams)
         {
             var query = context.Members.AsQueryable();
 

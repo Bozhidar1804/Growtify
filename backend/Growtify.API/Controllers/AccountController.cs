@@ -1,77 +1,31 @@
-﻿using System.Security.Cryptography;
-using System.Text;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Growtify.Domain.Entities;
-using Growtify.Infrastructure.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using Growtify.Application.DTOs.Account;
-using Growtify.Application.Interfaces;
-using Growtify.API.Extensions;
+using Growtify.Application.Interfaces.Services;
 
 namespace Growtify.API.Controllers
 {
-    public class AccountController(GrowtifyDbContext dbContext, ITokenService tokenService) : BaseApiController
+    public class AccountController(IAccountService accountService) : BaseApiController
     {
         [HttpPost("register")] // POST: api/account/register
-        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
+        public async Task<ActionResult<UserDto>> Register(RegisterDto dto)
         {
-            if (await EmailExists(registerDto.Email))
+            var result = await accountService.RegisterAsync(dto);
+
+            if (result == null)
                 return BadRequest("Email is already taken.");
 
-            using var hmac = new HMACSHA512();
-
-            AppUser appUser = new AppUser
-            {
-                Email = registerDto.Email,
-                UserName = registerDto.UserName,
-                PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
-                PasswordSalt = hmac.Key
-            };
-
-            Member member = new Member
-            {
-                Id = appUser.Id,
-                UserName = registerDto.UserName,
-                Gender = registerDto.Gender,
-                City = registerDto.City,
-                Country = registerDto.Country,
-                DateOfBirth = registerDto.DateOfBirth,
-                Created = DateTime.UtcNow,
-                LastActive = DateTime.UtcNow
-            };
-
-            appUser.Member = member;
-
-            dbContext.AppUsers.Add(appUser);
-            dbContext.Members.Add(member);
-
-            await dbContext.SaveChangesAsync();
-
-            return appUser.ToDto(tokenService);
+            return Ok(result);
         }
 
         [HttpPost("login")] // POST: api/account/login
-        public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
+        public async Task<ActionResult<UserDto>> Login(LoginDto dto)
         {
-            var user = await dbContext.AppUsers.SingleOrDefaultAsync(x => x.Email == loginDto.Email);
+            var result = await accountService.LoginAsync(dto);
 
-            if (user == null) return Unauthorized("Invalid email address");
+            if (result == null)
+                return Unauthorized("Invalid credentials");
 
-            using var hmac = new HMACSHA512(user.PasswordSalt);
-
-            var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(loginDto.Password));
-
-            for (int i = 0; i < computedHash.Length; i++)
-            {
-                if (user.PasswordHash[i] != computedHash[i]) return Unauthorized("Invalid password");
-            }
-
-            return user.ToDto(tokenService);
-        }
-
-        private async Task<bool> EmailExists(string email)
-        {
-            return await dbContext.AppUsers.AnyAsync(u => u.Email.ToLower() == email.ToLower());
+            return Ok(result);
         }
     }
 }

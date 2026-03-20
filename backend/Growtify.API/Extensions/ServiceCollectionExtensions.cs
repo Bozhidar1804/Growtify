@@ -1,10 +1,16 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Growtify.API.Filters;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Growtify.API.Extensions
 {
     public static class ServiceCollectionExtensions
     {
+        public static IServiceCollection AddApiServices(this IServiceCollection services)
+        {
+            services.AddScoped<LogUserActivity>();
+            return services;
+        }
         public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration config)
         {
             var tokenKey = config["TokenKey"] ?? throw new Exception("Token key not found - Program.cs");

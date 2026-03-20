@@ -1,4 +1,4 @@
-﻿namespace Growtify.Infrastructure.Helpers
+﻿namespace Growtify.Application.Common.Settings
 {
     public class CloudinarySettings
     {
