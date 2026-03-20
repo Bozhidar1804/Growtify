@@ -15,6 +15,7 @@ namespace Growtify.Infrastructure.DepedencyInjection
             services.AddScoped<IMemberRepository, MemberRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<ILikesRepository, LikesRepository>();
+            services.AddScoped<IMessageRepository, MessageRepository>();
 
             services.AddScoped<IPhotoService, PhotoService>();
             services.AddScoped<ITokenService, TokenService>();
