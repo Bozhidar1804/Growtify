@@ -5,7 +5,6 @@ using Growtify.Application.Interfaces.Repositories;
 using Growtify.Application.Interfaces.Services;
 using Growtify.Domain.Entities;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Growtify.Application.Services
 {

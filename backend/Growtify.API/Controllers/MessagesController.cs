@@ -1,41 +1,24 @@
 ﻿using Growtify.API.Extensions;
 using Growtify.Application.DTOs.Message;
-using Growtify.Application.Interfaces.Repositories;
-using Growtify.Application.Common.Mappings;
-using Growtify.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Growtify.Application.Common.Pagination;
+using Growtify.Application.Interfaces.Services;
 
 namespace Growtify.API.Controllers
 {
-    public class MessagesController(IMessageRepository messageRepository, IMemberRepository memberRepository) : BaseApiController
+    public class MessagesController(IMessageService messageService) : BaseApiController
     {
         [HttpPost]
         public async Task<ActionResult<MessageDto>> CreateMessage(CreateMessageDto createMessageDto)
         {
-            Member? sender = await memberRepository.GetMemberByIdAsync(User.GetMemberId());
-            Member? recipient = await memberRepository.GetMemberByIdAsync(createMessageDto.RecipientId);
+            MessageDto? result = await messageService.CreateMessageAsync(User.GetMemberId(), createMessageDto);
 
-            if (sender == null ||  recipient == null || sender.Id == recipient.Id)
+            if (result == null)
             {
                 return BadRequest("Cannot send this message.");
             }
 
-            Message? message = new Message
-            {
-                SenderId = sender.Id,
-                RecipientId = recipient.Id,
-                Content = createMessageDto.Content
-            };
-
-            messageRepository.AddMessage(message);
-
-            if (await messageRepository.SaveChangesAsync())
-            {
-                return message.ToDto();
-            }
-
-            return BadRequest("Failed to create message.");
+            return Ok(result);
         }
 
         [HttpGet]
@@ -43,13 +26,15 @@ namespace Growtify.API.Controllers
         {
             messageParams.MemberId = User.GetMemberId();
 
-            return await messageRepository.GetMessagesForMember(messageParams);
+            return Ok(await messageService.GetMessagesForMemberAsync(messageParams));
         }
 
         [HttpGet("thread/{recipientId}")]
         public async Task<ActionResult<IReadOnlyList<MessageDto>>> GetMessageThread(string recipientId)
         {
-            return Ok(await messageRepository.GetMessageThread(User.GetMemberId(), recipientId));
+            var result = await messageService.GetMessageThreadAsync(User.GetMemberId(), recipientId);
+
+            return Ok(result);
         }
     }
 }
