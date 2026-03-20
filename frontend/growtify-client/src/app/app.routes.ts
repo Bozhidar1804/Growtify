@@ -13,6 +13,7 @@ import { MemberPhotos } from '../features/members/member-photos/member-photos';
 import { MemberMessages } from '../features/members/member-messages/member-messages';
 import { memberResolver } from '../features/members/member-resolver';
 import { preventUnsavedChangesGuard } from '../core/guards/prevent-unsaved-changes-guard';
+import { Messages } from '../features/messages/messages';
 
 export const routes: Routes = [
     { path: '', component: Home },
@@ -24,6 +25,7 @@ export const routes: Routes = [
             { path: 'my-growth', component: MyGrowth },
             { path: 'account/:id', component: UserDetailed },
             { path: 'community', component: Community },
+            { path: 'messages', component: Messages },
             {
                 path: 'members/:id',
                 resolve: { member: memberResolver},
