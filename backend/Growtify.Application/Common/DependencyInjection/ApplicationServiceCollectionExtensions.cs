@@ -11,6 +11,7 @@ namespace Growtify.Application.Common.DependencyInjection
             services.AddScoped<IMemberService, MemberService>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ILikeService, LikeService>();
+            services.AddScoped<IMessageService, MessageService>();
 
             return services;
         }
