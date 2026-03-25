@@ -53,5 +53,27 @@ namespace Growtify.Application.Services
         {
             return await messageRepository.GetMessageThread(currentMemberId, recipientId);
         }
+
+        public async Task<bool> DeleteMessageAsync(string messageId, string memberId)
+        {
+            Message? message = await messageRepository.GetMessage(messageId);
+
+            if (message == null) return false;
+
+            if (message.SenderId != memberId && message.RecipientId != memberId)
+            {
+                return false;
+            }
+
+            if (message.SenderId == memberId) message.SenderDeleted = true;
+            if (message.RecipientId == memberId) message.RecipientDeleted = true;
+
+            if (message.SenderDeleted && message.RecipientDeleted)
+            {
+                messageRepository.DeleteMessage(message);
+            }
+
+            return await messageRepository.SaveChangesAsync();
+        }
     }
 }

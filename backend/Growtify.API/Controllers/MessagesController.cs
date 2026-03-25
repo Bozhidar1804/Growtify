@@ -1,8 +1,8 @@
 ﻿using Growtify.API.Extensions;
-using Growtify.Application.DTOs.Message;
-using Microsoft.AspNetCore.Mvc;
 using Growtify.Application.Common.Pagination;
+using Growtify.Application.DTOs.Message;
 using Growtify.Application.Interfaces.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Growtify.API.Controllers
 {
@@ -35,6 +35,21 @@ namespace Growtify.API.Controllers
             var result = await messageService.GetMessageThreadAsync(User.GetMemberId(), recipientId);
 
             return Ok(result);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteMessage(string id)
+        {
+            string? memberId = User.GetMemberId();
+
+            bool success = await messageService.DeleteMessageAsync(id, memberId);
+
+            if (!success)
+            {
+                return BadRequest("Problem deleting the message.");
+            }
+
+            return Ok();
         }
     }
 }
