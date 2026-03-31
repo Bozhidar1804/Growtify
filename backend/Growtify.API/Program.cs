@@ -5,7 +5,7 @@ using Growtify.Infrastructure.DepedencyInjection;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using Growtify.Application.Common.DependencyInjection;
-using Growtify.Infrastructure.Identity;
+using Growtify.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 
 namespace Growtify.API

@@ -1,7 +1,6 @@
 ﻿using Growtify.Application.DTOs.Account;
 using Growtify.Application.Interfaces.Services;
 using Growtify.Domain.Entities;
-using Growtify.Infrastructure.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;

@@ -2,7 +2,6 @@
 using Growtify.Domain.Entities;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Growtify.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 
 namespace Growtify.Infrastructure.Data

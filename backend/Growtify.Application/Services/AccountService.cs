@@ -1,43 +1,58 @@
-﻿using Growtify.Application.Common.Mappings;
-using Growtify.Application.DTOs.Account;
-using Growtify.Application.Interfaces.Repositories;
+﻿using Growtify.Application.DTOs.Account;
 using Growtify.Application.Interfaces.Services;
 using Growtify.Domain.Entities;
-using System.Security.Cryptography;
-using System.Text;
-
+using Microsoft.AspNetCore.Identity;
 
 namespace Growtify.Application.Services
 {
     public class AccountService : IAccountService
     {
-        private readonly IAccountRepository accountRepository;
+        private readonly UserManager<AppUser> userManager;
         private readonly ITokenService tokenService;
 
-        public AccountService(IAccountRepository accountRepository, ITokenService tokenService)
+        public AccountService(UserManager<AppUser> userManager, ITokenService tokenService)
         {
-            this.accountRepository = accountRepository;
+            this.userManager = userManager;
             this.tokenService = tokenService;
         }
 
         public async Task<UserDto?> RegisterAsync(RegisterDto dto)
         {
-            if (await accountRepository.EmailExistsAsync(dto.Email))
+            if (await userManager.FindByEmailAsync(dto.Email) != null)
                 return null;
+
+            AppUser user = new AppUser
+            {
+                DisplayName = dto.DisplayName,
+                Email = dto.Email,
+                UserName = dto.Email,
+            };
+
+            IdentityResult? result = await userManager.CreateAsync(user, dto.Password);
+            if (!result.Succeeded) return null;
+
+            user.Member = new Member
+            {
+                Id = user.Id,
+                UserName = dto.Email,
+                Gender = dto.Gender,
+                City = dto.City,
+                Country = dto.Country,
+                DateOfBirth = dto.DateOfBirth
+            };
+
+            await userManager.UpdateAsync(user);
+
+            await userManager.AddToRoleAsync(user, "Member");
 
             UserDto userDto = new UserDto
             {
-                Id = Guid.NewGuid().ToString(),
-                Email = dto.Email,
-                DisplayName = dto.DisplayName,
-                ImageUrl = null,
+                Id = user.Id,
+                Email = user.Email!,
+                DisplayName = user.DisplayName,
+                ImageUrl = user.Member?.ImageUrl,
                 Token = ""
             };
-
-            await accountRepository.AddUserAsync(userDto);
-
-            if (!await accountRepository.SaveChangesAsync())
-                return null;
 
             userDto.Token = tokenService.CreateToken(userDto);
 
@@ -46,12 +61,24 @@ namespace Growtify.Application.Services
 
         public async Task<UserDto?> LoginAsync(LoginDto dto)
         {
-            var user = await accountRepository.GetUserByEmailAsync(dto.Email);
+            AppUser? user = await userManager.FindByEmailAsync(dto.Email);
             if (user == null) return null;
 
-            user.Token = tokenService.CreateToken(user);
+            bool passwordValid = await userManager.CheckPasswordAsync(user, dto.Password);
+            if (!passwordValid) return null;
 
-            return user;
+            UserDto userDto = new UserDto
+            {
+                Id = user.Id,
+                Email = user.Email!,
+                DisplayName = user.DisplayName,
+                ImageUrl = user.Member?.ImageUrl,
+                Token = ""
+            };
+
+            userDto.Token = tokenService.CreateToken(userDto);
+
+            return userDto;
         }
     }
 }

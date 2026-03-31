@@ -2,7 +2,6 @@
 using Growtify.Application.Interfaces.Repositories;
 using Growtify.Domain.Entities;
 using Growtify.Infrastructure.Data;
-using Growtify.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 
 

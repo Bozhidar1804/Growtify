@@ -1,8 +1,7 @@
-﻿using Growtify.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using System.Text.Json.Serialization;
 
-namespace Growtify.Infrastructure.Identity
+namespace Growtify.Domain.Entities
 {
     public class AppUser : IdentityUser
     {

@@ -12,7 +12,7 @@ namespace Growtify.API.Controllers
             var result = await accountService.RegisterAsync(dto);
 
             if (result == null)
-                return BadRequest("Email is already taken.");
+                return BadRequest("Registration failed.");
 
             return Ok(result);
         }
