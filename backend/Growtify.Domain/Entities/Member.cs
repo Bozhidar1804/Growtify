@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Growtify.Domain.Entities
 {
@@ -26,8 +25,5 @@ namespace Growtify.Domain.Entities
         public List<Message> MessagesSent { get; set; } = [];
         [JsonIgnore]
         public List<Message> MessagesReceived { get; set; } = [];
-        [JsonIgnore]
-        [ForeignKey(nameof(Id))]
-        public AppUser User { get; set; } = null!;
     }
 }

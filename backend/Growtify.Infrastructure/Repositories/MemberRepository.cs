@@ -41,7 +41,6 @@ namespace Growtify.Infrastructure.Repositories
         public async Task<Member?> GetMemberByIdAsync(string memberId)
         {
             return await context.Members
-                .Include(m => m.User)
                 .Include(m => m.Photos)
                 .FirstOrDefaultAsync(m => m.Id == memberId);
         }
@@ -68,7 +67,6 @@ namespace Growtify.Infrastructure.Repositories
         public async Task<Member?> GetMemberForUpdate(string id)
         {
             return await context.Members
-                .Include(m => m.User)
                 .SingleOrDefaultAsync(m => m.Id == id);
         }
     }

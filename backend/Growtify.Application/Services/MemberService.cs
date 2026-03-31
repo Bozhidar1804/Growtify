@@ -56,7 +56,6 @@ namespace Growtify.Application.Services
             if (string.IsNullOrEmpty(member.ImageUrl))
             {
                 member.ImageUrl = photo.Url;
-                if (member.User != null) member.User.ImageUrl = photo.Url;
             }
 
             member.Photos.Add(photo);
@@ -79,7 +78,6 @@ namespace Growtify.Application.Services
             if (photo == null || member.ImageUrl == photo.Url) return false;
 
             member.ImageUrl = photo.Url;
-            member.User.ImageUrl = photo.Url;
 
             return await memberRepository.SaveChangesAsync();
         }
@@ -113,8 +111,6 @@ namespace Growtify.Application.Services
             member.Description = dto.Description ?? member.Description;
             member.City = dto.City ?? member.City;
             member.Country = dto.Country ?? member.Country;
-
-            member.User.UserName = dto.DisplayName ?? member.User.UserName;
 
             memberRepository.UpdateMember(member);
 

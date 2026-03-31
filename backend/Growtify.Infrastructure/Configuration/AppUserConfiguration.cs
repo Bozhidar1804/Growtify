@@ -1,6 +1,7 @@
 ﻿using Growtify.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Growtify.Infrastructure.Identity;
 
 namespace Growtify.Infrastructure.Configuration
 {
