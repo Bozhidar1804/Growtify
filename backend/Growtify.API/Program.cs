@@ -37,6 +37,7 @@ namespace Growtify.API
             builder.Services.AddInfrastructure(builder.Configuration);
 
             builder.Services.AddJwtAuthentication(builder.Configuration);
+            builder.Services.AddCustomAuthorization();
 
             builder.Services.AddIdentityCore<AppUser>(opt =>
             {
