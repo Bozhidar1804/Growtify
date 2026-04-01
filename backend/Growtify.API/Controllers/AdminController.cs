@@ -35,5 +35,30 @@ namespace Growtify.API.Controllers
         {
             return Ok("Admins or moderators can see this");
         }
+
+        [Authorize(Policy = "RequireAdminRole")]
+        [HttpPost("edit-roles/{userId}")]
+        public async Task<ActionResult<IList<string>>> EditRoles(string userId, [FromQuery]string roles)
+        {
+            if (string.IsNullOrEmpty(roles)) return BadRequest("You must select at least one role");
+
+            string[] selectedRoles = roles.Split(",").ToArray();
+
+            AppUser? user = await userManager.FindByIdAsync(userId);
+
+            if (user == null) return BadRequest("Could not retrieve user");
+
+            IList<string> userRoles = await userManager.GetRolesAsync(user);
+
+            IdentityResult? result = await userManager.AddToRolesAsync(user, selectedRoles.Except(userRoles));
+
+            if (!result.Succeeded) return BadRequest("Failed to add roles");
+
+            result = await userManager.RemoveFromRolesAsync(user, userRoles.Except(selectedRoles));
+
+            if (!result.Succeeded) return BadRequest("Failed to remove roles");
+
+            return Ok(await userManager.GetRolesAsync(user));
+        }
     }
 }
