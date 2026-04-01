@@ -1,15 +1,32 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Growtify.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Growtify.API.Controllers
 {
-    public class AdminController : BaseApiController
+    public class AdminController(UserManager<AppUser> userManager) : BaseApiController
     {
         [Authorize(Policy = "RequireAdminRole")]
         [HttpGet("users-with-roles")]
-        public ActionResult GetUsersWithRoles()
+        public async Task<ActionResult> GetUsersWithRoles()
         {
-            return Ok("Only admins can see this!");
+            List<AppUser> users = await userManager.Users.ToListAsync();
+            List<object> userList = new List<object>();
+
+            foreach(AppUser user in users)
+            {
+                IList<string> roles = await userManager.GetRolesAsync(user);
+                userList.Add(new
+                {
+                    user.Id,
+                    user.Email,
+                    Roles = roles.ToList()
+                });
+            }
+
+            return Ok(userList);
         }
 
         [Authorize(Policy = "ModeratePhotoRole")]
