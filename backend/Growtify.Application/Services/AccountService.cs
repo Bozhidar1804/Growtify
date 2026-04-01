@@ -1,4 +1,5 @@
-﻿using Growtify.Application.DTOs.Account;
+﻿using Growtify.Application.Common.Mappings;
+using Growtify.Application.DTOs.Account;
 using Growtify.Application.Interfaces.Services;
 using Growtify.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -45,18 +46,7 @@ namespace Growtify.Application.Services
 
             await userManager.AddToRoleAsync(user, "Member");
 
-            UserDto userDto = new UserDto
-            {
-                Id = user.Id,
-                Email = user.Email!,
-                DisplayName = user.DisplayName,
-                ImageUrl = user.Member?.ImageUrl,
-                Token = ""
-            };
-
-            userDto.Token = tokenService.CreateToken(userDto);
-
-            return userDto;
+            return await user.ToDto(tokenService);
         }
 
         public async Task<UserDto?> LoginAsync(LoginDto dto)
@@ -67,18 +57,7 @@ namespace Growtify.Application.Services
             bool passwordValid = await userManager.CheckPasswordAsync(user, dto.Password);
             if (!passwordValid) return null;
 
-            UserDto userDto = new UserDto
-            {
-                Id = user.Id,
-                Email = user.Email!,
-                DisplayName = user.DisplayName,
-                ImageUrl = user.Member?.ImageUrl,
-                Token = ""
-            };
-
-            userDto.Token = tokenService.CreateToken(userDto);
-
-            return userDto;
+            return await user.ToDto(tokenService);
         }
     }
 }
