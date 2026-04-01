@@ -13,7 +13,7 @@ namespace Growtify.Application.Common.Mappings
                 Id = user.Id,
                 Email = user.Email!,
                 DisplayName = user.DisplayName,
-                ImageUrl = user.Member?.ImageUrl,
+                ImageUrl = user.ImageUrl,
                 Token = await tokenService.CreateToken(user)
             };
         }
