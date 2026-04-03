@@ -62,6 +62,7 @@ namespace Growtify.API
             {
                 policy.AllowAnyHeader()
                       .AllowAnyMethod()
+                      .AllowCredentials()
                       .WithOrigins("http://localhost:4200", "https://localhost:4200");
             });
 

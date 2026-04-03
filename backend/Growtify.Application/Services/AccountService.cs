@@ -3,6 +3,7 @@ using Growtify.Application.DTOs.Account;
 using Growtify.Application.Interfaces.Services;
 using Growtify.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Growtify.Application.Services
 {
@@ -17,7 +18,7 @@ namespace Growtify.Application.Services
             this.tokenService = tokenService;
         }
 
-        public async Task<UserDto?> RegisterAsync(RegisterDto dto)
+        public async Task<(UserDto user, string refreshToken)?> RegisterAsync(RegisterDto dto)
         {
             if (await userManager.FindByEmailAsync(dto.Email) != null)
                 return null;
@@ -46,10 +47,19 @@ namespace Growtify.Application.Services
 
             await userManager.AddToRoleAsync(user, "Member");
 
-            return await user.ToDto(tokenService);
+            string refreshToken = tokenService.GenerateRefreshToken();
+
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
+            await userManager.UpdateAsync(user);
+
+            UserDto userDto = await user.ToDto(tokenService);
+
+            return (userDto, refreshToken);
         }
 
-        public async Task<UserDto?> LoginAsync(LoginDto dto)
+        public async Task<(UserDto user, string refreshToken)?> LoginAsync(LoginDto dto)
         {
             AppUser? user = await userManager.FindByEmailAsync(dto.Email);
             if (user == null) return null;
@@ -57,7 +67,36 @@ namespace Growtify.Application.Services
             bool passwordValid = await userManager.CheckPasswordAsync(user, dto.Password);
             if (!passwordValid) return null;
 
-            return await user.ToDto(tokenService);
+            var refreshToken = tokenService.GenerateRefreshToken();
+
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
+            await userManager.UpdateAsync(user);
+
+            var userDto = await user.ToDto(tokenService);
+
+            return (userDto, refreshToken);
+        }
+
+        public async Task<(UserDto user, string refreshToken)?> RefreshTokenAsync(string refreshToken)
+        {
+            AppUser? user = await userManager.Users
+                .FirstOrDefaultAsync(x => x.RefreshToken == refreshToken &&
+                                          x.RefreshTokenExpiry > DateTime.UtcNow);
+
+            if (user == null) return null;
+
+            string newRefreshToken = tokenService.GenerateRefreshToken();
+
+            user.RefreshToken = newRefreshToken;
+            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
+            await userManager.UpdateAsync(user);
+
+            UserDto userDto = await user.ToDto(tokenService);
+
+            return (userDto, newRefreshToken);
         }
     }
 }
