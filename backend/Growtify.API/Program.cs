@@ -5,6 +5,8 @@ using Growtify.Infrastructure.DepedencyInjection;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using Growtify.Application.Common.DependencyInjection;
+using Growtify.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 
 namespace Growtify.API
 {
@@ -21,6 +23,11 @@ namespace Growtify.API
                 options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
             });
 
+            builder.Services.AddDbContext<GrowtifyDbContext>(options =>
+            {
+                options.UseSqlServer(connectionString);
+            });
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddCors();
@@ -30,12 +37,16 @@ namespace Growtify.API
             builder.Services.AddInfrastructure(builder.Configuration);
 
             builder.Services.AddJwtAuthentication(builder.Configuration);
+            builder.Services.AddCustomAuthorization();
 
-            builder.Services
-                .AddDbContext<GrowtifyDbContext>(options =>
-            {                 
-                options.UseSqlServer(connectionString);
-            });
+            builder.Services.AddIdentityCore<AppUser>(opt =>
+            {
+                opt.Password.RequireNonAlphanumeric = false;
+                opt.User.RequireUniqueEmail = true;
+            })
+            .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<GrowtifyDbContext>();
+
 
             var app = builder.Build();
 
@@ -51,6 +62,7 @@ namespace Growtify.API
             {
                 policy.AllowAnyHeader()
                       .AllowAnyMethod()
+                      .AllowCredentials()
                       .WithOrigins("http://localhost:4200", "https://localhost:4200");
             });
 
@@ -67,8 +79,9 @@ namespace Growtify.API
             try
             {
                 var context = services.GetRequiredService<GrowtifyDbContext>();
+                var userManager = services.GetRequiredService<UserManager<AppUser>>();
                 await context.Database.MigrateAsync();
-                await Seed.SeedUsers(context);
+                await Seed.SeedUsers(userManager);
             } catch (Exception ex)
             {
                 var logger = services.GetRequiredService<ILogger<Program>>();

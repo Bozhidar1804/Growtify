@@ -6,6 +6,15 @@ namespace Growtify.API.Extensions
 {
     public static class ServiceCollectionExtensions
     {
+        public static IServiceCollection AddCustomAuthorization(this IServiceCollection services)
+        {
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+                options.AddPolicy("ModeratePhotoRole", policy => policy.RequireRole("Admin", "Moderator"));
+            });
+            return services;
+        }
         public static IServiceCollection AddApiServices(this IServiceCollection services)
         {
             services.AddScoped<LogUserActivity>();

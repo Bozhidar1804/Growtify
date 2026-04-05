@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Growtify.Application.DTOs.Account;
+﻿using Growtify.Application.DTOs.Account;
 using Growtify.Application.Interfaces.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Growtify.API.Controllers
 {
@@ -12,20 +12,52 @@ namespace Growtify.API.Controllers
             var result = await accountService.RegisterAsync(dto);
 
             if (result == null)
-                return BadRequest("Email is already taken.");
+                return BadRequest("Registration failed.");
 
-            return Ok(result);
+            SetRefreshTokenCookie(result.Value.refreshToken);
+
+            return Ok(result.Value.user);
         }
 
-        [HttpPost("login")] // POST: api/account/login
+        [HttpPost("login")]
         public async Task<ActionResult<UserDto>> Login(LoginDto dto)
         {
             var result = await accountService.LoginAsync(dto);
 
             if (result == null)
-                return Unauthorized("Invalid credentials");
+                return Unauthorized();
 
-            return Ok(result);
+            SetRefreshTokenCookie(result.Value.refreshToken);
+
+            return Ok(result.Value.user);
+        }
+
+        [HttpPost("refresh-token")]
+        public async Task<ActionResult<UserDto>> RefreshToken()
+        {
+            string refreshToken = Request.Cookies["refreshToken"];
+            if (refreshToken == null) return NoContent();
+
+            var result = await accountService.RefreshTokenAsync(refreshToken);
+
+            if (result == null) return Unauthorized();
+
+            SetRefreshTokenCookie(result.Value.refreshToken);
+
+            return Ok(result.Value.user);
+        }
+
+        private void SetRefreshTokenCookie(string refreshToken)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.UtcNow.AddDays(7)
+            };
+
+            Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
         }
     }
 }

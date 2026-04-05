@@ -1,5 +1,7 @@
 ﻿using Growtify.Application.DTOs.Account;
 using Growtify.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -8,9 +10,9 @@ namespace Growtify.Infrastructure.Data
 {
     public static class Seed
     {
-        public static async Task SeedUsers(GrowtifyDbContext context)
+        public static async Task SeedUsers(UserManager<AppUser> userManager)
         {
-            if (context.AppUsers.Any()) return;
+            if (userManager.Users.Any()) return;
 
             var json = await File.ReadAllTextAsync("../Growtify.Infrastructure/Data/UserSeedData.json");
             var users = JsonSerializer.Deserialize<List<SeedUserDto>>(json);
@@ -23,17 +25,14 @@ namespace Growtify.Infrastructure.Data
 
             foreach (var u in users)
             {
-                using var hmac = new HMACSHA512();
-
                 AppUser appUser = new AppUser
                 {
                     Id = u.Id,
-                    UserName = u.UserName.ToLower(),
+                    UserName = u.Email,
                     Email = u.Email,
+                    DisplayName = u.UserName,
                     ImageUrl = u.ImageUrl,
-                    CreatedAt = u.Created,
-                    PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes("Pa$$w0rd")),
-                    PasswordSalt = hmac.Key
+                    CreatedAt = u.Created
                 };
 
                 Member member = new Member
@@ -57,11 +56,24 @@ namespace Growtify.Infrastructure.Data
                     MemberId = member.Id
                 });
 
-                context.AppUsers.Add(appUser);
-                context.Members.Add(member);
+                IdentityResult? result = await userManager.CreateAsync(appUser, "Pa$$w0rd");
+                if (!result.Succeeded)
+                {
+                    Console.WriteLine(result.Errors.First().Description);
+                }
+
+                await userManager.AddToRoleAsync(appUser, "Member");
             }
 
-            await context.SaveChangesAsync();
+            AppUser admin = new AppUser
+            {
+                UserName = "admin@test.com",
+                Email = "admin@test.com",
+                DisplayName = "Admin"
+            };
+
+            await userManager.CreateAsync(admin, "Pa$$w0rd");
+            await userManager.AddToRolesAsync(admin, ["Admin", "Moderator"]);
         }
     }
 }

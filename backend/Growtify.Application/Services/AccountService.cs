@@ -1,74 +1,102 @@
 ﻿using Growtify.Application.Common.Mappings;
 using Growtify.Application.DTOs.Account;
-using Growtify.Application.Interfaces.Repositories;
 using Growtify.Application.Interfaces.Services;
 using Growtify.Domain.Entities;
-using System.Security.Cryptography;
-using System.Text;
-
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Growtify.Application.Services
 {
     public class AccountService : IAccountService
     {
-        private readonly IAccountRepository accountRepository;
+        private readonly UserManager<AppUser> userManager;
         private readonly ITokenService tokenService;
 
-        public AccountService(IAccountRepository accountRepository, ITokenService tokenService)
+        public AccountService(UserManager<AppUser> userManager, ITokenService tokenService)
         {
-            this.accountRepository = accountRepository;
+            this.userManager = userManager;
             this.tokenService = tokenService;
         }
 
-        public async Task<UserDto?> RegisterAsync(RegisterDto dto)
+        public async Task<(UserDto user, string refreshToken)?> RegisterAsync(RegisterDto dto)
         {
-            if (await accountRepository.EmailExistsAsync(dto.Email))
+            if (await userManager.FindByEmailAsync(dto.Email) != null)
                 return null;
 
-            using var hmac = new HMACSHA512();
-
-            AppUser? user = new AppUser
+            AppUser user = new AppUser
             {
+                DisplayName = dto.DisplayName,
                 Email = dto.Email,
-                UserName = dto.UserName,
-                PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(dto.Password)),
-                PasswordSalt = hmac.Key,
-                Member = new Member
-                {
-                    UserName = dto.UserName,
-                    Gender = dto.Gender,
-                    City = dto.City,
-                    Country = dto.Country,
-                    DateOfBirth = dto.DateOfBirth,
-                    Created = DateTime.UtcNow,
-                    LastActive = DateTime.UtcNow
-                }
+                UserName = dto.Email,
             };
 
-            await accountRepository.AddUserAsync(user);
+            IdentityResult? result = await userManager.CreateAsync(user, dto.Password);
+            if (!result.Succeeded) return null;
 
-            if (!await accountRepository.SaveChangesAsync())
-                return null;
+            user.Member = new Member
+            {
+                Id = user.Id,
+                UserName = dto.Email,
+                Gender = dto.Gender,
+                City = dto.City,
+                Country = dto.Country,
+                DateOfBirth = dto.DateOfBirth
+            };
 
-            return user.ToDto(tokenService);
+            await userManager.UpdateAsync(user);
+
+            await userManager.AddToRoleAsync(user, "Member");
+
+            string refreshToken = tokenService.GenerateRefreshToken();
+
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
+            await userManager.UpdateAsync(user);
+
+            UserDto userDto = await user.ToDto(tokenService);
+
+            return (userDto, refreshToken);
         }
 
-        public async Task<UserDto?> LoginAsync(LoginDto dto)
+        public async Task<(UserDto user, string refreshToken)?> LoginAsync(LoginDto dto)
         {
-            AppUser? user = await accountRepository.GetUserByEmailAsync(dto.Email);
+            AppUser? user = await userManager.FindByEmailAsync(dto.Email);
             if (user == null) return null;
 
-            using var hmac = new HMACSHA512(user.PasswordSalt);
+            bool passwordValid = await userManager.CheckPasswordAsync(user, dto.Password);
+            if (!passwordValid) return null;
 
-            byte[]? computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(dto.Password));
+            var refreshToken = tokenService.GenerateRefreshToken();
 
-            for (int i = 0; i < computedHash.Length; i++)
-            {
-                if (computedHash[i] != user.PasswordHash[i])
-                    return null;
-            }
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
 
-            return user.ToDto(tokenService);
+            await userManager.UpdateAsync(user);
+
+            var userDto = await user.ToDto(tokenService);
+
+            return (userDto, refreshToken);
+        }
+
+        public async Task<(UserDto user, string refreshToken)?> RefreshTokenAsync(string refreshToken)
+        {
+            AppUser? user = await userManager.Users
+                .FirstOrDefaultAsync(x => x.RefreshToken == refreshToken &&
+                                          x.RefreshTokenExpiry > DateTime.UtcNow);
+
+            if (user == null) return null;
+
+            string newRefreshToken = tokenService.GenerateRefreshToken();
+
+            user.RefreshToken = newRefreshToken;
+            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
+            await userManager.UpdateAsync(user);
+
+            UserDto userDto = await user.ToDto(tokenService);
+
+            return (userDto, newRefreshToken);
         }
     }
 }

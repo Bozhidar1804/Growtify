@@ -1,22 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
-
 using Growtify.Domain.Entities;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace Growtify.Infrastructure.Data
 {
-    public class GrowtifyDbContext : DbContext
+    public class GrowtifyDbContext(DbContextOptions options) : IdentityDbContext<AppUser>(options)
     {
-        public GrowtifyDbContext()
-        {
-
-        }
-
-        public GrowtifyDbContext(DbContextOptions<GrowtifyDbContext> options)
-            : base(options)
-        {
-        }
-
         public DbSet<AppUser> AppUsers { get; set; }
         public DbSet<Member> Members { get; set; }
         public DbSet<Photo> Photos { get; set; }
@@ -26,6 +17,13 @@ namespace Growtify.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<IdentityRole>()
+                .HasData(
+                    new IdentityRole { Id = "member-id", Name = "Member", NormalizedName = "MEMBER" },
+                    new IdentityRole { Id = "moderator-id", Name = "Moderator", NormalizedName = "MODERATOR" },
+                    new IdentityRole { Id = "admin-id", Name = "Admin", NormalizedName = "ADMIN" }
+                );
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(GrowtifyDbContext).Assembly);
 

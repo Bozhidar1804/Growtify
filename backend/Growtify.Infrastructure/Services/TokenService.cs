@@ -1,17 +1,21 @@
-﻿using System.Text;
-using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
+﻿using Growtify.Application.DTOs.Account;
 using Growtify.Application.Interfaces.Services;
 using Growtify.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Growtify.Infrastructure.Services
 {
     // TokenService is implemented in Infrastructure layer because it uses Microsoft.IdentityModel.Tokens and System.IdentityModel.Tokens.Jwt, which are not needed in the Application layer. This way, we keep the Application layer clean and focused on business logic, while the Infrastructure layer handles the implementation details of token generation.
-    public class TokenService(IConfiguration config) : ITokenService
+    public class TokenService(IConfiguration config, UserManager<AppUser> userManager) : ITokenService
     {
-        public string CreateToken(AppUser user)
+        public async Task<string> CreateToken(AppUser user)
         {
             var tokenKey = config["TokenKey"] ?? throw new Exception("Cannot get token key");
             if (tokenKey.Length < 64)
@@ -24,16 +28,20 @@ namespace Growtify.Infrastructure.Services
             var claims = new List<Claim>
             {
                 new(ClaimTypes.Email, user.Email),
-                new(ClaimTypes.Name, user.UserName),
+                new(ClaimTypes.Name, user.DisplayName),
                 new(ClaimTypes.NameIdentifier, user.Id)
             };
+
+            var roles = await userManager.GetRolesAsync(user);
+
+            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddDays(7),
+                Expires = DateTime.Now.AddMinutes(7),
                 SigningCredentials = creds
             };
 
@@ -41,6 +49,12 @@ namespace Growtify.Infrastructure.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
             return tokenHandler.WriteToken(token);
+        }
+
+        public string GenerateRefreshToken()
+        {
+            var randomBytes = RandomNumberGenerator.GetBytes(64);
+            return Convert.ToBase64String(randomBytes);
         }
     }
 }
