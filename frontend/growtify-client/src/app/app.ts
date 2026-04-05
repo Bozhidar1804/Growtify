@@ -19,11 +19,15 @@ export class App implements OnInit {
   }
 
   setCurrentUser() {
-    const userString = localStorage.getItem('user');
-
-    if (userString) {
-      const user: User = JSON.parse(userString);
-      this.accountService.setCurrentUser(user);
+  this.accountService.refreshToken().subscribe({
+    next: user => {
+      if (user) {
+        this.accountService.setCurrentUser(user);
+      }
+    },
+    error: () => {
+      // user not logged in / token invalid → do nothing
     }
-  }
+  });
+}
 }
