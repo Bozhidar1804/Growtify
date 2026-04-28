@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using Growtify.Application.Common.DependencyInjection;
 using Growtify.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+using Growtify.API.SignalR;
 
 namespace Growtify.API
 {
@@ -38,6 +39,7 @@ namespace Growtify.API
 
             builder.Services.AddJwtAuthentication(builder.Configuration);
             builder.Services.AddCustomAuthorization();
+            builder.Services.AddSignalR();
 
             builder.Services.AddIdentityCore<AppUser>(opt =>
             {
@@ -71,8 +73,8 @@ namespace Growtify.API
             app.UseAuthentication();
             app.UseAuthorization();
 
-
             app.MapControllers();
+            app.MapHub<PresenceHub>("hubs/presence");
 
             using var scope = app.Services.CreateScope();
             var services = scope.ServiceProvider;
